@@ -1,6 +1,4 @@
-package TaskManager;
-
-import java.util.Objects;
+package main.java.tasks;
 
 public class Task {
     private String taskName;
@@ -8,9 +6,10 @@ public class Task {
     private String taskStatus;
     private int taskId;
 
-    public Task(String taskName, String descriptionTask) {
+    public Task(String taskName, String descriptionTask, String status) {
         this.taskName = taskName;
         this.descriptionTask = descriptionTask;
+        taskStatus = status;
     }
 
     public String getTaskName() {
@@ -51,7 +50,7 @@ public class Task {
         if (obj == null) return false;
         if (this.getClass() != obj.getClass()) return false;
         Task task = (Task) obj;
-        return Objects.equals(taskName, task.taskName) && (taskId == task.taskId);
+        return taskId == task.taskId;
     }
 
     @Override

@@ -1,12 +1,15 @@
-package TaskManager;
+package main.java.managers;
 
+import main.java.tasks.Epic;
+import main.java.tasks.Subtask;
+import main.java.tasks.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TaskManager {
-    HashMap<Integer, Task> commonTaskStorage = new HashMap<>();
-    HashMap<Integer, Epic> epicTaskStorage = new HashMap<>();
-    HashMap<Integer, Subtask> subtaskStorage = new HashMap<>();
+    public HashMap<Integer, Task> commonTaskStorage = new HashMap<>();
+    public HashMap<Integer, Epic> epicTaskStorage = new HashMap<>();
+    public HashMap<Integer, Subtask> subtaskStorage = new HashMap<>();
     private int taskIdDealer = 1;
 
     public ArrayList<Task> viewAllCommonTask() {
@@ -28,18 +31,17 @@ public class TaskManager {
         return commonTaskStorage.get(id);
     }
 
-    public int createCommonTask(Task task) {
+    public void createCommonTask(Task task) {
         task.setTaskId(taskIdDealer++);
         task.setTaskStatus("NEW");
 
         commonTaskStorage.put(task.getTaskId(), task);
-
-        return task.getTaskId();
     }
 
-    public void updateCommonTask(Task task) {
-        if (commonTaskStorage.containsKey(task.getTaskId())) {
-            commonTaskStorage.put(task.getTaskId(), task);
+    public void updateCommonTask(Task task, int taskId) {
+        if (commonTaskStorage.containsKey(taskId)) {
+            task.setTaskId(taskId);
+            commonTaskStorage.put(taskId, task);
         }
     }
 
@@ -67,18 +69,22 @@ public class TaskManager {
         return epicTaskStorage.get(id);
     }
 
-    public int createEpicTask(Epic epic) {
+    public void createEpicTask(Epic epic) {
         epic.setTaskId(taskIdDealer++);
         epic.setTaskStatus("NEW");
 
         epicTaskStorage.put(epic.getTaskId(), epic);
-
-        return epic.getTaskId();
     }
 
-    private void updateEpicTask(Epic epic) {
-        epic.setTaskStatus(epicStatusDealer(epic));
-        epicTaskStorage.put(epic.getTaskId(), epic);
+    public void updateEpicTask(Epic epic, int epicId) {
+        if (epicTaskStorage.get(epicId).getTaskId() == epicId) {
+            ArrayList<Subtask> newList = new ArrayList<>(epicTaskStorage.get(epicId).getSubtasksStorage());
+            epic.setTaskId(epicId);
+            epicTaskStorage.put(epicId, epic);
+            epicTaskStorage.get(epicId).setSubtasksStorage(newList);
+        }
+
+        epicTaskStorage.get(epicId).setTaskStatus(epicStatusDealer(epicTaskStorage.get(epicId)));
     }
 
     private String epicStatusDealer(Epic epic) {
@@ -107,22 +113,18 @@ public class TaskManager {
     public void deleteEpicTask(int theEpic) {
         if (epicTaskStorage.containsKey(theEpic)) {
             if (!epicTaskStorage.get(theEpic).getSubtasksStorage().isEmpty()) {
+                ArrayList<Integer> subId = new ArrayList<>();
 
-                for (Subtask subtaskByEpic : epicTaskStorage.get(theEpic).getSubtasksStorage()) {
-                    ArrayList<Integer> subIdForDeleted = new ArrayList<>();
-
-                    for (Integer subtaskID : subtaskStorage.keySet()) {
-                        if (subtaskStorage.get(subtaskID).equals(subtaskByEpic)
-                                && subtaskStorage.get(subtaskID).hashCode()
-                                == subtaskByEpic.hashCode()) {
-                            subIdForDeleted .add(subtaskID);
-                        }
-                    }
-
-                    for (Integer subId: subIdForDeleted) {
-                        subtaskStorage.remove(subId);
+                for (Integer subtaskId : subtaskStorage.keySet()) {
+                    if (subtaskStorage.get(subtaskId).getMyEpicId() == theEpic) {
+                        subId.add(subtaskStorage.get(subtaskId).getTaskId());
                     }
                 }
+
+                for (Integer forDeleted : subId) {
+                    subtaskStorage.remove(forDeleted);
+                }
+
                 epicTaskStorage.remove(theEpic);
             } else {
                 epicTaskStorage.remove(theEpic);
@@ -153,7 +155,8 @@ public class TaskManager {
     public void deleteAllSubtask() {
         for (Integer theEpic: epicTaskStorage.keySet()) {
             epicTaskStorage.get(theEpic).getSubtasksStorage().clear();
-            updateEpicTask(epicTaskStorage.get(theEpic));
+
+            epicTaskStorage.get(theEpic).setTaskStatus(epicStatusDealer(epicTaskStorage.get(theEpic)));
         }
         subtaskStorage.clear();
     }
@@ -162,33 +165,36 @@ public class TaskManager {
         return subtaskStorage.get(id);
     }
 
-    public int createSubtask(Subtask subtask, int epicId) {
+    public void createSubtask(Subtask subtask, int epicId) {
         subtask.setTaskId(taskIdDealer++);
         subtask.setTaskStatus("NEW");
 
         for (Integer theEpic : epicTaskStorage.keySet()) {
             if (theEpic == epicId) {
+                subtask.setMyEpicId(epicId);
+
                 epicTaskStorage.get(epicId).getSubtasksStorage().add(subtask);
 
                 subtaskStorage.put(subtask.getTaskId(), subtask);
 
-                updateEpicTask(epicTaskStorage.get(epicId));
+                epicTaskStorage.get(theEpic).setTaskStatus(epicStatusDealer(epicTaskStorage.get(theEpic)));
             }
         }
-        return subtask.getTaskId();
     }
 
-    public void updateSubtask(Subtask subtask) {
+    public void updateSubtask(Subtask subtask, int subtaskId) {
         for (Integer theEpic : epicTaskStorage.keySet()) {
             for(int i = 0; i < epicTaskStorage.get(theEpic).getSubtasksStorage().size(); i++) {
-                if (epicTaskStorage.get(theEpic).getSubtasksStorage().get(i).equals(subtask)
-                        && epicTaskStorage.get(theEpic).getSubtasksStorage().get(i).hashCode()
-                        == subtask.hashCode()) {
+                if (epicTaskStorage.get(theEpic).getSubtasksStorage().get(i).getTaskId() == subtaskId) {
+                    subtask.setTaskId(subtaskId);
+
+                    subtask.setMyEpicId(epicTaskStorage.get(theEpic).getTaskId());
+
                     epicTaskStorage.get(theEpic).getSubtasksStorage().set(i, subtask);
 
-                    subtaskStorage.put(subtask.getTaskId(), subtask);
+                    subtaskStorage.put(subtaskId, subtask);
 
-                    updateEpicTask(epicTaskStorage.get(theEpic));
+                    epicTaskStorage.get(theEpic).setTaskStatus(epicStatusDealer(epicTaskStorage.get(theEpic)));
                 }
             }
         }
@@ -205,7 +211,7 @@ public class TaskManager {
 
                     subtaskStorage.remove(subtaskId);
 
-                    updateEpicTask(epicTaskStorage.get(theEpic));
+                    epicTaskStorage.get(theEpic).setTaskStatus(epicStatusDealer(epicTaskStorage.get(theEpic)));
                 }
             }
         }
