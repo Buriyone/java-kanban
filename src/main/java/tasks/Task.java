@@ -1,5 +1,7 @@
 package main.java.tasks;
 
+import java.util.Objects;
+
 public class Task {
     private String taskName;
     private String descriptionTask;
@@ -50,16 +52,24 @@ public class Task {
         if (obj == null) return false;
         if (this.getClass() != obj.getClass()) return false;
         Task task = (Task) obj;
-        return taskId == task.taskId;
+        return taskId == task.taskId && Objects.equals(taskName, task.taskName)
+                && Objects.equals(descriptionTask, task.descriptionTask)
+                && Objects.equals(taskStatus, task.taskStatus);
     }
 
     @Override
     public int hashCode() {
         int hash = 17;
         if (taskName != null) {
-            hash = hash + taskName.hashCode() + taskId * 3;
+            hash = hash + taskName.hashCode() + taskId * 3 + taskStatus.hashCode() + descriptionTask.hashCode();
         }
         hash = hash * 31;
         return hash;
+    }
+
+    @Override
+    public String toString () {
+        return "Task{taskName = '" + taskName + "'; " + "descriptionTask = '" + descriptionTask + "'; "
+                + "taskStatus = '" + taskStatus + "'; " + "taskId = '" + taskId + "'.}";
     }
 }

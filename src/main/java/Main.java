@@ -52,36 +52,30 @@ public class Main {
         System.out.println("Работает");
 
         System.out.println("\n");
-        System.out.println("Получим задачи по идентификатору");
+        System.out.println("Получим задачи по идентификатору:");
         System.out.println(taskManager.getCommonTask(taskId1));
         System.out.println(taskManager.getCommonTask(taskId2));
-        System.out.println("Получим имена задач по идентификатору");
-        System.out.println(taskManager.getCommonTask(taskId1).getTaskName());
-        System.out.println(taskManager.getCommonTask(taskId2).getTaskName());
         System.out.println("Работает");
 
         System.out.println("\n");
         System.out.println("Обновим задачу, сменим её статус, изменим описание");
-        System.out.println("Действующее описание: " + taskManager.commonTaskStorage.get(taskId1).getDescriptionTask());
-        System.out.println("Действующий статус: " + taskManager.commonTaskStorage.get(taskId1).getTaskStatus());
+        System.out.println("Вызовем задачу, и посмотрим на ее поля перед обновлением:");
+        System.out.println(taskManager.getCommonTask(taskId1));
+        System.out.println("Обновим");
         Task task1_1 = new Task("Покупки", "Морковь, свекла", "IN_PROGRESS");
         taskManager.updateCommonTask(task1_1, taskId1);
-        System.out.println("Новое описание: " + taskManager.getCommonTask(taskId1).getDescriptionTask());
-        System.out.println("Новый статус: " + taskManager.getCommonTask(taskId1).getTaskStatus());
-        System.out.println("Всё в порядке");
+        System.out.println("Посмотрим что из этого вышло:");
+        System.out.println(taskManager.getCommonTask(taskId1));
+        System.out.println("Работает как надо");
 
         System.out.println("\n");
         System.out.println("Удалим задачу по идентификатору");
         System.out.println("Сначала проверим наличие задач");
         System.out.println(taskManager.viewAllCommonTask());
-        System.out.println("И их имена:");
-        System.out.println(taskManager.commonTaskStorage.get(taskId1).getTaskName()
-                + "\n" + taskManager.commonTaskStorage.get(taskId2).getTaskName());
         System.out.println("Удалим первую задачу");
         taskManager.deleteCommonTask(taskId1);
         System.out.println("Проверим что получилось и еще раз вызовем список задач");
         System.out.println(taskManager.viewAllCommonTask());
-        System.out.println("Имя оставшейся задачи: " + taskManager.commonTaskStorage.get(taskId2).getTaskName());
         System.out.println("Задача была удалена, отлично");
 
         System.out.println("\n");
@@ -93,38 +87,35 @@ public class Main {
         System.out.println("Получим эпики по идентификатору");
         System.out.println(taskManager.getEpicTask(epicId1));
         System.out.println(taskManager.getEpicTask(epicId2));
-        System.out.println("Имена эпиков: " + "\n" + taskManager.getEpicTask(epicId1).getTaskName()
-                + "\n" + taskManager.getEpicTask(epicId2).getTaskName());
         System.out.println("Все работает, отлично.");
 
         System.out.println("\n");
         System.out.println("Обновим эпик");
-        System.out.println("Действующее описание эпика с этим индексом: " + "\n"
-                + taskManager.getEpicTask(epicId1).getDescriptionTask());
+        System.out.println("Посмотрим на эпик до обновления: ");
+        System.out.println(taskManager.getEpicTask(epicId1));
+        System.out.println("Обновим");
         Epic epic1_1 = new Epic("Влажная уборка", "Влажная уборка с применением фибры",
                 "NEW");
         taskManager.updateEpicTask(epic1_1, epicId1);
-        System.out.println("Новое описание эпика: " + "\n"
-                + taskManager.getEpicTask(epicId1).getDescriptionTask());
+        System.out.println("Взглянем что получилось: ");
+        System.out.println(taskManager.getEpicTask(epicId1));
         System.out.println("Работает");
 
         System.out.println("\n");
         System.out.println("Попробуем сменить эпику статус");
-        System.out.println("Действующий статус: " + "\n"
-                + taskManager.getEpicTask(epicId2).getTaskStatus());
+        System.out.println("Посмотрим на статус эпика: ");
+        System.out.println(taskManager.getEpicTask(epicId2));
         System.out.println("Заменим статус в подзадачах на выполненный и обновим их.");
-        subtask2.setTaskStatus("DONE");
-        subtask3.setTaskStatus("DONE");
         Subtask subtask2_1 = new Subtask("Сводить собаку в парк",
                 "Посетить площадку", "DONE");
         Subtask subtask3_1 = new Subtask("Сводить собаку к грумеру",
                 "Совсем зарос", "DONE");
         taskManager.updateSubtask(subtask2_1, sub2);
         taskManager.updateSubtask(subtask3_1, sub3);
-        System.out.println("Новые статусы подзадач: " + "\n" + taskManager.getSubtask(sub2).getTaskStatus()
-                + "\n" + taskManager.getSubtask(sub3).getTaskStatus());
-        System.out.println("Статус эпика после изменений: " + "\n"
-                + taskManager.getEpicTask(epicId2).getTaskStatus());
+        System.out.println("посмотрим как изменились подзадачи ");
+        System.out.println(taskManager.viewAllEpicSubtask(epicId2));
+        System.out.println("И теперь вызовем эпик ");
+        System.out.println(taskManager.getEpicTask(epicId2));
         System.out.println("работает");
 
         System.out.println("\n");
@@ -137,19 +128,19 @@ public class Main {
         System.out.println(taskManager.getSubtask(sub1));
         System.out.println(taskManager.getSubtask(sub2));
         System.out.println(taskManager.getSubtask(sub3));
-        System.out.println("Их имена: " + "\n" + taskManager.getSubtask(sub1).getTaskName() + "\n"
-                + taskManager.getSubtask(sub2).getTaskName() + "\n" + taskManager.getSubtask(sub3).getTaskName());
         System.out.println("Работает");
 
         System.out.println("\n");
         System.out.println("Получим все подзадачи конкретного эпика");
         System.out.println("Поочередно вызовем метод для каждого эпика");
+        System.out.println("Подзадачи эпика 1: ");
         System.out.println(taskManager.viewAllEpicSubtask(epicId1));
+        System.out.println("Подзадачи эпика 2: ");
         System.out.println(taskManager.viewAllEpicSubtask(epicId2));
         System.out.println("Работает");
 
         System.out.println("\n");
-        System.out.println("Удалим подзадачу 3, принадлежащую эпику 2");
+        System.out.println("Удалим подзадачу принадлежащую эпику 2");
         taskManager.deleteSubtask(sub3);
         System.out.println("И получим список всех подзадач для проверки");
         System.out.println(taskManager.viewAllSubtask());

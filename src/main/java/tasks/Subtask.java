@@ -1,5 +1,7 @@
 package main.java.tasks;
 
+import java.util.Objects;
+
 public class Subtask extends Task {
     private int myEpicId;
 
@@ -21,16 +23,27 @@ public class Subtask extends Task {
         if (obj == null) return false;
         if (this.getClass() != obj.getClass()) return false;
         Subtask subtask = (Subtask) obj;
-        return getTaskId() == subtask.getTaskId() && myEpicId == subtask.getMyEpicId();
+        return getTaskId() == subtask.getTaskId() && myEpicId == subtask.getMyEpicId()
+                && Objects.equals(getTaskName(), subtask.getTaskName())
+                && Objects.equals(getDescriptionTask(), subtask.getDescriptionTask())
+                && Objects.equals(getTaskStatus(), subtask.getTaskStatus());
     }
 
     @Override
     public int hashCode() {
         int hash = 17;
         if (getTaskName() != null) {
-            hash = hash + getTaskName().hashCode() + getTaskId() * 3;
+            hash = hash + getTaskName().hashCode() + getTaskId() * 7 + getMyEpicId() * 7
+                    + getDescriptionTask().hashCode() + getTaskStatus().hashCode();
         }
         hash = hash * 31;
         return hash;
+    }
+
+    @Override
+    public String toString () {
+        return "Subtask{taskName = '" + getTaskName() + "'; " + "descriptionTask = '" + getDescriptionTask() + "'; "
+                + "taskStatus = '" + getTaskStatus() + "'; " + "taskId = '" + getTaskId() + "'; "
+                + "myEpicId = '" + myEpicId + "'.}";
     }
 }
