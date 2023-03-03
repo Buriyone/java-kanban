@@ -1,12 +1,14 @@
 package main.java.tasks;
 
+import main.java.managers.Status;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class Epic extends Task {
     private ArrayList<Subtask> subtasksStorage = new ArrayList<>();
 
-    public Epic(String taskName, String descriptionEpic, String status) {
+    public Epic(String taskName, String descriptionEpic, Status status) {
         super(taskName, descriptionEpic, status);
     }
 

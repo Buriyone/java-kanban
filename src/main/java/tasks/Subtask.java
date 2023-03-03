@@ -1,12 +1,15 @@
 package main.java.tasks;
 
+import main.java.managers.Status;
+
 import java.util.Objects;
 
 public class Subtask extends Task {
     private int myEpicId;
 
-    public Subtask(String taskName, String descriptionTask, String status) {
+    public Subtask(String taskName, String descriptionTask, Status status, int myEpicId) {
         super(taskName, descriptionTask, status);
+        this.myEpicId = myEpicId;
     }
 
     public int getMyEpicId() {
