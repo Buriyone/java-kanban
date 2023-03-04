@@ -1,6 +1,6 @@
 package main.java.tasks;
 
-import main.java.managers.Status;
+import main.java.models.Status;
 
 import java.util.ArrayList;
 import java.util.Objects;

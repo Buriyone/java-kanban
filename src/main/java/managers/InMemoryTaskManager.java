@@ -1,22 +1,20 @@
 package main.java.managers;
 
+import main.java.models.Status;
 import main.java.tasks.Epic;
 import main.java.tasks.Subtask;
 import main.java.tasks.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class InMemoryTaskManager implements TaskManager {
-    public HashMap<Integer, Task> commonTaskStorage = new HashMap<>();
-    public HashMap<Integer, Epic> epicTaskStorage = new HashMap<>();
-    public HashMap<Integer, Subtask> subtaskStorage = new HashMap<>();
+    private final HashMap<Integer, Task> commonTaskStorage = new HashMap<>();
+    private final HashMap<Integer, Epic> epicTaskStorage = new HashMap<>();
+    private final HashMap<Integer, Subtask> subtaskStorage = new HashMap<>();
     private int id = 1;
 
-    HistoryManager historyManager;
-
-    public InMemoryTaskManager(HistoryManager historyManager) {
-        this.historyManager = historyManager;
-    }
+    private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public ArrayList<Task> getAllCommonTask() {
@@ -247,7 +245,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Task> getHistory() {
+    public LinkedList<Task> getHistory() {
         return historyManager.getHistory();
     }
 }

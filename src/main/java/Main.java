@@ -1,8 +1,7 @@
 package main.java;
 
-import main.java.managers.HistoryManager;
 import main.java.managers.Managers;
-import main.java.managers.Status;
+import main.java.models.Status;
 import main.java.managers.TaskManager;
 import main.java.tasks.Task;
 import main.java.tasks.Epic;
@@ -11,8 +10,7 @@ import main.java.tasks.Subtask;
 public class Main {
 
     public static void main(String[] args) {
-        HistoryManager historyManager = Managers.getDefaultHistory();
-        TaskManager taskManager = Managers.getDefault(historyManager);
+        TaskManager taskManager = Managers.getDefault();
 
 
         System.out.println("Инициализируем задачи");
@@ -129,7 +127,6 @@ public class Main {
         taskManager.updateSubtask(subtask2_1, sub2);
         taskManager.updateSubtask(subtask3_1, sub3);
         System.out.println("посмотрим как изменились подзадачи ");
-        //System.out.println(taskManager.getAllEpicSubtask(epicId2));
         for (Subtask subtask : taskManager.getAllEpicSubtask(epicId2)) {
             System.out.println(subtask);
         }
@@ -139,7 +136,6 @@ public class Main {
 
         System.out.println("\n");
         System.out.println("Получим список всех подзадач");
-        //System.out.println(taskManager.getAllSubtask());
         for (Subtask subtask : taskManager.getAllSubtask()) {
             System.out.println(subtask);
         }
@@ -156,12 +152,10 @@ public class Main {
         System.out.println("Получим все подзадачи конкретного эпика");
         System.out.println("Поочередно вызовем метод для каждого эпика");
         System.out.println("Подзадачи эпика 1: ");
-        //System.out.println(taskManager.getAllEpicSubtask(epicId1));
         for (Subtask subtask : taskManager.getAllEpicSubtask(epicId1)) {
             System.out.println(subtask);
         }
         System.out.println("Подзадачи эпика 2: ");
-       // System.out.println(taskManager.getAllEpicSubtask(epicId2));
         for (Subtask subtask : taskManager.getAllEpicSubtask(epicId2)) {
             System.out.println(subtask);
         }
@@ -171,7 +165,6 @@ public class Main {
         System.out.println("Удалим подзадачу принадлежащую эпику 2");
         taskManager.deleteSubtask(sub3);
         System.out.println("И получим список всех подзадач для проверки");
-        //System.out.println(taskManager.getAllSubtask());
         for (Subtask subtask : taskManager.getAllSubtask()) {
             System.out.println(subtask);
         }
@@ -180,24 +173,20 @@ public class Main {
         System.out.println("\n");
         System.out.println("Удалим эпик по идентификатору для этого:");
         System.out.println("Проверим наличие эпиков");
-        //System.out.println(taskManager.getAllEpicTask());
         for (Epic epic : taskManager.getAllEpicTask()) {
             System.out.println(epic);
         }
         System.out.println("И проверим наличие подзадач:");
-        //System.out.println(taskManager.getAllSubtask());
         for (Subtask subtask : taskManager.getAllSubtask()) {
             System.out.println(subtask);
         }
         System.out.println("Удалим эпик 1");
         taskManager.deleteEpicTask(epicId1);
         System.out.println("Проверим что получилось - ещё раз вызовем список эпиков");
-        //System.out.println(taskManager.getAllEpicTask());
         for (Epic epic : taskManager.getAllEpicTask()) {
             System.out.println(epic);
         }
         System.out.println("И проверим список всех подзадач");
-        //System.out.println(taskManager.getAllSubtask());
         for (Subtask subtask : taskManager.getAllSubtask()) {
             System.out.println(subtask);
         }

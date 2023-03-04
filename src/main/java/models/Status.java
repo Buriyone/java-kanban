@@ -1,4 +1,4 @@
-package main.java.managers;
+package main.java.models;
 
 public enum Status {
     NEW,
