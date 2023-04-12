@@ -1,24 +1,81 @@
 package main.java.managers;
 
+import main.java.models.Node;
 import main.java.tasks.Task;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
-    private final LinkedList<Task> taskHistory = new LinkedList<>();
 
-    @Override
-    public void add(Task task) {
-        if (taskHistory.size() != 10) {
-            taskHistory.add(task);
-        } else {
-            taskHistory.remove(0);
-            taskHistory.add(task);
+    private final Map<Integer, Node<Task>> hashNodes = new HashMap<>();
+
+    private Node<Task> head;
+
+    private Node<Task> tail;
+
+
+    private ArrayList<Task> getTasks() {
+        ArrayList<Task> history = new ArrayList<>();
+        Node<Task> node = head;
+        while (node != null) {
+            history.add(node.data);
+            node = node.next;
         }
+        return history;
+    }
+
+    private void removeNode(Node <Task> node) {
+        Node<Task> prevNode = node.prev;
+        Node<Task> nextNode = node.next;
+        
+        if (prevNode == null) {
+            head = nextNode;
+            nextNode.prev = null;
+        } else if (nextNode == null) {
+            tail = prevNode;
+            prevNode.next = null;
+        } else {
+            prevNode.next = nextNode;
+            nextNode.prev = prevNode;
+        }
+        node.data = null;
     }
 
     @Override
-    public LinkedList<Task> getHistory() {
-        return taskHistory;
+    public void add(Task task) {
+        if (task != null) {
+            if (!hashNodes.containsKey(task.getTaskId())) {
+                linkLast(task);
+            } else {
+                removeNode(hashNodes.get(task.getTaskId()));
+                linkLast(task);
+            }
+        }
+    }
+
+    private void linkLast(Task task) {
+        Node<Task> prevTail = tail;
+        Node<Task> currentNode = new Node<>(task, prevTail, null);
+
+        tail = currentNode;
+        if (prevTail == null) {
+            head = currentNode;
+        } else {
+            prevTail.next = currentNode;
+        }
+        hashNodes.put(task.getTaskId(), currentNode);
+    }
+
+    @Override
+    public void remove(int id) {
+        removeNode(hashNodes.get(id));
+        hashNodes.remove(id);
+    }
+
+    @Override
+    public ArrayList<Task> getHistory() {
+        return getTasks();
     }
 }

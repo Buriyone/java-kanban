@@ -13,6 +13,8 @@ public class Main {
         TaskManager taskManager = Managers.getDefault();
 
 
+        //Спрятал общий тест кода чтоб не мешал, сделаю тест как в ТЗ сказали
+
         System.out.println("Инициализируем задачи");
         Task task1 = new Task("Покупки", "Хлеб, Молоко, яйца", Status.NEW);
         Task task2 = new Task("Стирка", "Устроить постирушки", Status.NEW);
@@ -37,7 +39,7 @@ public class Main {
 
         System.out.println("\n");
         System.out.println("Инициализируем подзадачи");
-        Subtask subtask1 = new Subtask("Пыль", "Пора бы уже", Status.NEW, epicId1);
+        Subtask subtask1 = new Subtask("Ошейник", "Купить новый", Status.NEW, epicId2);
         Subtask subtask2 = new Subtask("Сводить собаку в парк", "Посетить площадку",
                 Status.NEW, epicId2);
         Subtask subtask3 = new Subtask("Сводить собаку к грумеру", "Совсем зарос",
@@ -52,7 +54,7 @@ public class Main {
         int sub3 = taskManager.getAllSubtask().get(2).getTaskId();
 
 
-        System.out.println("\n");
+        /*System.out.println("\n");
         System.out.println("Получим список задач");
         for (Task task : taskManager.getAllCommonTask()) {
             System.out.println(task);
@@ -212,47 +214,76 @@ public class Main {
         System.out.println("Эпиков больше нет как и подзадач");
 
         System.out.println("\n");
-        System.out.println("Тестирование решения истории задач.");
-        System.out.println("Воспроизведем пользовательский сценарий:");
-        System.out.println("Создадим несколько задач разного типа.");
+        System.out.println("Все тесты прошли проверку");*/
 
-        Task testCommonTask = new Task("Задача", "Обычная задача", Status.NEW);
-        taskManager.addCommonTask(testCommonTask);
-        int idTestCommonTask = taskManager.getAllCommonTask().get(0).getTaskId();
-
-        Epic testEpicTask = new Epic("Эпик", "Тестовый эпик", Status.NEW);
-        taskManager.addEpicTask(testEpicTask);
-        int idTestEpicTask = taskManager.getAllEpicTask().get(0).getTaskId();
-
-        Subtask testSubtask = new Subtask("Подзадача", "Тестовая подзадача",
-                Status.NEW, idTestEpicTask);
-        taskManager.addSubtask(testSubtask);
-        int idTestSubtask = taskManager.getAllSubtask().get(0).getTaskId();
-
-        System.out.println("Поочередно вызовем каждый метод и распечатаем историю.\n"
-                + "Если последние 3 объекта в списке будут тестовые, расположенные в порядке: "
-                + "Задача; Эпик; Подзадача - значит код работает исправно.\n");
-        taskManager.getCommonTask(idTestCommonTask);
-        taskManager.getEpicTask(idTestEpicTask);
-        taskManager.getSubtask(idTestSubtask);
-        for (Task testTask : taskManager.getHistory()) {
-            System.out.println(testTask);
-        }
         System.out.println("\n");
-        System.out.println("Теперь проверим как работает ограничение размера истории."
-                + " Для этого 10 раз вызовем Задачу.\n"
-                + "Если история будет состоять только из задач и их количество не превысит значение 10 "
-                + "- значит все работает как надо.\n");
-        for (int i = 0; i < 10; i++) {
-            taskManager.getCommonTask(idTestCommonTask);
-        }
-        for (Task testTask : taskManager.getHistory()) {
-            System.out.println(testTask);
+        System.out.println("Запросим созданные задачи несколько раз в разном порядке.");
+        taskManager.getCommonTask(taskId1);
+        taskManager.getCommonTask(taskId2);
+        taskManager.getEpicTask(epicId1);
+        taskManager.getEpicTask(epicId2);
+        taskManager.getSubtask(sub1);
+        taskManager.getSubtask(sub2);
+        taskManager.getSubtask(sub3);
+        for (Task task : taskManager.getHistory()) {
+            System.out.println(task);
         }
 
         System.out.println("\n");
-        System.out.println("Все работает как надо, количество задач в истории ровно "
-                + taskManager.getHistory().size() + ".");
+        System.out.println("Еще раз делаем запрос в ином порядке с изменением головы.");
+
+        taskManager.getCommonTask(taskId1);
+        taskManager.getCommonTask(taskId2);
+        taskManager.getSubtask(sub1);
+        taskManager.getSubtask(sub2);
+        taskManager.getEpicTask(epicId2);
+        taskManager.getSubtask(sub3);
+        taskManager.getEpicTask(epicId1);
+        for (Task task : taskManager.getHistory()) {
+            System.out.println(task);
+        }
+
+        System.out.println("\n");
+        System.out.println("Еще раз делаем запрос в ином порядке с изменением хвоста.");
+        taskManager.getSubtask(sub3);
+        taskManager.getEpicTask(epicId1);
+        taskManager.getSubtask(sub2);
+        taskManager.getEpicTask(epicId2);
+        taskManager.getCommonTask(taskId1);
+        taskManager.getCommonTask(taskId2);
+        taskManager.getSubtask(sub1);
+        taskManager.getSubtask(sub1);
+        taskManager.getSubtask(sub1);
+        taskManager.getCommonTask(taskId2);
+        taskManager.getCommonTask(taskId2);
+        for (Task task : taskManager.getHistory()) {
+            System.out.println(task);
+        }
+
+        System.out.println("\n");
+        System.out.println("Тест успешный");
+
+        System.out.println("\n");
+        System.out.println("удалим задачу, которая есть в истории, и проверим, " +
+                "что при печати она не будет выводиться;");
+        System.out.println("Удалим голову и хвост и проверим как работает алгоритм замены и наличие удаленных " +
+                "экземпляров из истории.");
+        taskManager.deleteSubtask(sub3);
+        taskManager.deleteCommonTask(taskId2);
+        for (Task task : taskManager.getHistory()) {
+            System.out.println(task);
+        }
+
+        System.out.println("\n");
+        System.out.println("Тест успешный");
+
+        System.out.println("\n");
+        System.out.println("удалим эпик с тремя подзадачами и убедимся, " +
+                "что из истории удалился как сам эпик, так и все его подзадачи.");
+        taskManager.deleteEpicTask(epicId2);
+        for (Task task : taskManager.getHistory()) {
+            System.out.println(task);
+        }
 
         System.out.println("\n");
         System.out.println("Все тесты прошли проверку");
