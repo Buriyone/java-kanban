@@ -7,35 +7,35 @@ import main.java.tasks.Task;
 import java.util.ArrayList;
 
 public interface TaskManager {
-    ArrayList<Task> getAllCommonTask();
+    ArrayList<Task> getTasks();
 
-    void deleteAllCommonTask();
+    void deleteTasks();
 
-    Task getCommonTask(int id);
+    Task getTask(int id);
 
-    void addCommonTask(Task task);
+    void addTask(Task task);
 
-    void updateCommonTask(Task task, int taskId);
+    void updateTask(Task task, int taskId);
 
-    void deleteCommonTask(int id);
+    void deleteTask(int id);
 
-    ArrayList<Epic> getAllEpicTask();
+    ArrayList<Epic> getEpics();
 
-    void deleteAllEpicTask();
+    void deleteEpics();
 
-    Epic getEpicTask(int id);
+    Epic getEpic(int id);
 
-    void addEpicTask(Epic epic);
+    void addEpic(Epic epic);
 
-    void updateEpicTask(Epic epic, int epicId);
+    void updateEpic(Epic epic, int epicId);
 
-    void deleteEpicTask(int theEpic);
+    void deleteEpic(int theEpic);
 
-    ArrayList<Subtask> getAllEpicSubtask(int epicId);
+    ArrayList<Subtask> getEpicSubtasks(int epicId);
 
-    ArrayList<Subtask> getAllSubtask();
+    ArrayList<Subtask> getSubtasks();
 
-    void deleteAllSubtask();
+    void deleteSubtasks();
 
     Task getSubtask(int id);
 

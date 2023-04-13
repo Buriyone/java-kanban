@@ -5,47 +5,47 @@ import main.java.models.Status;
 import java.util.Objects;
 
 public class Task {
-    private String taskName;
-    private String descriptionTask;
-    private Status taskStatus;
-    private int taskId;
+    private String name;
+    private String description;
+    private Status status;
+    private int id;
 
-    public Task(String taskName, String descriptionTask, Status status) {
-        this.taskName = taskName;
-        this.descriptionTask = descriptionTask;
-        taskStatus = status;
+    public Task(String name, String description, Status status) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
     }
 
-    public String getTaskName() {
-        return taskName;
+    public String getName() {
+        return name;
     }
 
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getDescriptionTask() {
-        return descriptionTask;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDescriptionTask(String descriptionTask) {
-        this.descriptionTask = descriptionTask;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public Status getTaskStatus() {
-        return taskStatus;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setTaskStatus(Status taskStatus) {
-        this.taskStatus = taskStatus;
+    public void setStatus(Status Status) {
+        this.status = Status;
     }
 
-    public int getTaskId() {
-        return taskId;
+    public int getId() {
+        return id;
     }
 
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override
@@ -54,16 +54,16 @@ public class Task {
         if (obj == null) return false;
         if (this.getClass() != obj.getClass()) return false;
         Task task = (Task) obj;
-        return taskId == task.taskId && Objects.equals(taskName, task.taskName)
-                && Objects.equals(descriptionTask, task.descriptionTask)
-                && Objects.equals(taskStatus, task.taskStatus);
+        return id == task.id && Objects.equals(name, task.name)
+                && Objects.equals(description, task.description)
+                && Objects.equals(status, task.status);
     }
 
     @Override
     public int hashCode() {
         int hash = 17;
-        if (taskName != null) {
-            hash = hash + taskName.hashCode() + taskId * 3 + taskStatus.hashCode() + descriptionTask.hashCode();
+        if (name != null) {
+            hash = hash + name.hashCode() + id * 3 + status.hashCode() + description.hashCode();
         }
         hash = hash * 31;
         return hash;
@@ -71,7 +71,7 @@ public class Task {
 
     @Override
     public String toString () {
-        return "Task{taskName = '" + taskName + "'; " + "descriptionTask = '" + descriptionTask + "'; "
-                + "taskStatus = '" + taskStatus + "'; " + "taskId = '" + taskId + "'.}";
+        return "Task{name = '" + name + "'; " + "description = '" + description + "'; "
+                + "Status = '" + status + "'; " + "id = '" + id + "'.}";
     }
 }

@@ -6,18 +6,18 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class Epic extends Task {
-    private ArrayList<Subtask> subtasksStorage = new ArrayList<>();
+    private ArrayList<Subtask> subtasks = new ArrayList<>();
 
     public Epic(String taskName, String descriptionEpic, Status status) {
         super(taskName, descriptionEpic, status);
     }
 
-    public ArrayList<Subtask> getSubtasksStorage() {
-        return subtasksStorage;
+    public ArrayList<Subtask> getSubtasks() {
+        return subtasks;
     }
 
-    public void setSubtasksStorage(ArrayList<Subtask> subtasksStorage) {
-        this.subtasksStorage = subtasksStorage;
+    public void setSubtasks(ArrayList<Subtask> subtasks) {
+        this.subtasks = subtasks;
     }
 
     @Override
@@ -26,18 +26,18 @@ public class Epic extends Task {
         if (obj == null) return false;
         if (this.getClass() != obj.getClass()) return false;
         Epic epic = (Epic) obj;
-        return getTaskId() == epic.getTaskId() && Objects.equals(getTaskName(), epic.getTaskName())
-                && Objects.equals(getDescriptionTask(), epic.getDescriptionTask())
-                && Objects.equals(getTaskStatus(), epic.getTaskStatus())
-                && Objects.equals(getSubtasksStorage(), epic.getSubtasksStorage());
+        return getId() == epic.getId() && Objects.equals(getName(), epic.getName())
+                && Objects.equals(getDescription(), epic.getDescription())
+                && Objects.equals(getStatus(), epic.getStatus())
+                && Objects.equals(getSubtasks(), epic.getSubtasks());
     }
 
     @Override
     public int hashCode() {
         int hash = 17;
-        if (getTaskName() != null) {
-            hash = hash + getTaskName().hashCode() + getTaskId() * 3 + getDescriptionTask().hashCode()
-                    + getTaskStatus().hashCode() + getSubtasksStorage().hashCode();
+        if (getName() != null) {
+            hash = hash + getName().hashCode() + getId() * 3 + getDescription().hashCode()
+                    + getStatus().hashCode() + getSubtasks().hashCode();
         }
         hash = hash * 31;
         return hash;
@@ -45,9 +45,9 @@ public class Epic extends Task {
 
     @Override
     public String toString () {
-        return "Epic{taskName = '" + getTaskName() + "'; " + "descriptionTask = '" + getDescriptionTask() + "'; "
-                + "taskStatus = '" + getTaskStatus() + "'; " + "taskId = '" + getTaskId() + "'; "
-                + "subtasksStorage = " + subtasksStorage + "'.}";
+        return "Epic{taskName = '" + getName() + "'; " + "description = '" + getDescription() + "'; "
+                + "taskStatus = '" + getStatus() + "'; " + "taskId = '" + getId() + "'; "
+                + "subtasks = " + subtasks + "'.}";
 
     }
 }
