@@ -8,8 +8,8 @@ import java.util.Objects;
 public class Epic extends Task {
     private ArrayList<Subtask> subtasks = new ArrayList<>();
 
-    public Epic(String taskName, String descriptionEpic, Status status) {
-        super(taskName, descriptionEpic, status);
+    public Epic(String taskName, String descriptionEpic) {
+        super(taskName, descriptionEpic);
     }
 
     public ArrayList<Subtask> getSubtasks() {

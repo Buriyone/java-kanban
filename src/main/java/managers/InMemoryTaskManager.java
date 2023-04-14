@@ -45,7 +45,6 @@ public class InMemoryTaskManager implements TaskManager {
     public void addTask(Task task) {
         task.setId(id++);
         task.setStatus(Status.NEW);
-
         tasks.put(task.getId(), task);
     }
 
@@ -152,7 +151,6 @@ public class InMemoryTaskManager implements TaskManager {
             subtasks.remove(forDeleted);
             historyManager.remove(forDeleted);
         }
-
         epics.remove(theEpic);
         historyManager.remove(theEpic);
     }
@@ -201,9 +199,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtask.setId(id++);
         subtask.setStatus(Status.NEW);
         int epicId = subtask.getEpicId();
-
         epics.get(epicId).getSubtasks().add(subtask);
-
         subtasks.put(subtask.getId(), subtask);
         updateStatus(epics.get(epicId));
     }
@@ -238,9 +234,10 @@ public class InMemoryTaskManager implements TaskManager {
                 subtasks.remove(subtaskId);
 
                 updateStatus(epics.get(epicId));
+                
+                historyManager.remove(subtaskId);
             }
         }
-        historyManager.remove(subtaskId);
     }
 
     @Override
