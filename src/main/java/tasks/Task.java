@@ -1,6 +1,7 @@
 package main.java.tasks;
 
 import main.java.models.Status;
+import main.java.models.Type;
 
 import java.util.Objects;
 
@@ -51,6 +52,10 @@ public class Task {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Type getType() {
+        return Type.TASK;
     }
 
     @Override

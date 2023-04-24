@@ -1,6 +1,7 @@
 package main.java.tasks;
 
 import main.java.models.Status;
+import main.java.models.Type;
 
 import java.util.Objects;
 
@@ -18,6 +19,10 @@ public class Subtask extends Task {
 
     public void setEpicId(int epicId) {
         this.epicId = epicId;
+    }
+
+    public Type getType() {
+        return Type.SUBTASK;
     }
 
     @Override
