@@ -48,8 +48,8 @@ public class Main {
             System.out.println(task);
         }*/
 		
-		System.out.println(manager.getTask(1));
 		System.out.println(manager.getEpic(2));
+		System.out.println(manager.getTask(1));
 		System.out.println(manager.getSubtask(3));
 		System.out.println(manager.getEpicSubtasks(2));
 		
