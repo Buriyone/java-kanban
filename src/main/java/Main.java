@@ -13,20 +13,13 @@ import java.nio.file.Path;
 import static main.java.managers.FileBackedTasksManager.loadFromFile;
 
 public class Main {
-
-    public static void main(String[] args) {
-        System.out.println("Тест нового менеджера.");
-        TaskManager manager = Managers.getDefault();
-
-        //Тут я создал несколько задач как сказано в ТЗ, а затем спрятал их в коммент.
-        //При старте программы мы получаем менеджер, который вызывает метод восстановления.
-        //Я изменил сабтаск на выполненный, чтоб проверить работу обновления статуса эпика
-        //в автоматическом режиме при восстановлении.
-        //После чего вызвал задачи из обычного менеджера и они на месте.
-        //Так-же позволил себе добавить метод просчета нового id, не хотел лепить одинаковый расчет для каждого
-        //из веток восстановления задач.
+	
+	public static void main(String[] args) {
+		System.out.println("Тест нового менеджера.");
+		TaskManager manager = Managers.getDefault();
 
         /*FileBackedTasksManager saveManager = new FileBackedTasksManager(Path.of("src/main/resources/file.csv"));
+        
         Task task1 = new Task("TaskName1", "TaskDescription1");
         saveManager.addTask(task1);
         int taskId1 = saveManager.getTasks().get(0).getId();
@@ -48,15 +41,21 @@ public class Main {
         System.out.println(saveManager.getTask(taskId1));
         System.out.println(saveManager.getSubtask(sub1));
         System.out.println(saveManager.getTask(taskId1));
-        System.out.println(saveManager.getTask(taskId1));*/
-
-        System.out.println(manager.getTask(1));
-        System.out.println(manager.getEpic(2));
-        System.out.println(manager.getSubtask(3));
+        System.out.println(saveManager.getTask(taskId1));
 
         System.out.println("\n");
-        for (Task task : manager.getHistory()) {
+        for (Task task : saveManager.getHistory()) {
             System.out.println(task);
-        }
-    }
+        }*/
+		
+		System.out.println(manager.getTask(1));
+		System.out.println(manager.getEpic(2));
+		System.out.println(manager.getSubtask(3));
+		System.out.println(manager.getEpicSubtasks(2));
+		
+		System.out.println("\n");
+		for (Task task : manager.getHistory()) {
+			System.out.println(task);
+		}
+	}
 }
