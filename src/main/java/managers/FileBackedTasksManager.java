@@ -2,6 +2,7 @@ package main.java.managers;
 
 import main.java.exception.ManagerSaveException;
 import main.java.models.CSVTaskFormat;
+import main.java.models.Status;
 import main.java.models.Type;
 import main.java.tasks.Epic;
 import main.java.tasks.Subtask;
@@ -32,11 +33,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	
 	@Override
 	public Task getTask(int id) {
-		try {
-			return super.getTask(id);
-		} finally {
-			save();
-		}
+		final Task task = super.getTask(id);
+		save();
+		return task;
 	}
 	
 	@Override
@@ -70,11 +69,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	
 	@Override
 	public Epic getEpic(int id) {
-		try {
-			return super.getEpic(id);
-		} finally {
-			save();
-		}
+		Epic epic = super.getEpic(id);
+		save();
+		return epic;
+	}
+	
+	@Override
+	protected void updateStatus(Epic epic) {
+		super.updateStatus(epic);
 	}
 	
 	@Override
@@ -112,12 +114,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	}
 	
 	@Override
-	public Task getSubtask(int id) {
-		try {
-			return super.getSubtask(id);
-		} finally {
-			save();
-		}
+	public Subtask getSubtask(int id) {
+		Subtask subtask = super.getSubtask(id);
+		save();
+		return subtask;
 	}
 	
 	@Override
@@ -165,72 +165,72 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 			throw new RuntimeException(e);
 		}
 	}
-	
 	public static FileBackedTasksManager loadFromFile(File file) {
-		FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file.toPath());
+		FileBackedTasksManager manager = new FileBackedTasksManager(file.toPath());
 		try (Reader rdr = new FileReader(file, StandardCharsets.UTF_8)) {
-			int id = 1;
-			boolean switchT = true;
+			int id = manager.id;
+			boolean toggler = true;
 			BufferedReader br = new BufferedReader(rdr);
 			
 			while (br.ready()) {
 				String line = br.readLine();
+				Task task = CSVTaskFormat.fromString(line);
 				
-				if (CSVTaskFormat.fromString(line) != null && switchT == true) {
-					Type type = CSVTaskFormat.fromString(line).getType();
+				if (task != null && toggler == true) {
+					Type type = task.getType();
+					Status status = task.getStatus();
 					
 					if (type.equals(Type.EPIC)) {
-						fileBackedTasksManager.epics.put(CSVTaskFormat
-								.fromString(line).getId(), (Epic) CSVTaskFormat.fromString(line));
-						
-						id = comp(CSVTaskFormat.fromString(line).getId(), id);
+						manager.addEpic((Epic) task);
 					} else if (type.equals(Type.SUBTASK)) {
-						fileBackedTasksManager.subtasks
-								.put(CSVTaskFormat.fromString(line).getId(), (Subtask) CSVTaskFormat.fromString(line));
-						fileBackedTasksManager.epics.get(((Subtask) CSVTaskFormat.fromString(line)).getEpicId())
-								.getSubtasks().add((Subtask) CSVTaskFormat.fromString(line));
+						manager.addSubtask((Subtask) task);
 						
-						id = comp(CSVTaskFormat.fromString(line).getId(), id);
+						if (!status.equals(Status.NEW)) {
+							manager.updateSubtask((Subtask) task, task.getId());
+						}
 					} else if (type.equals(Type.TASK)) {
-						fileBackedTasksManager.tasks.
-								put(CSVTaskFormat.fromString(line).getId(), CSVTaskFormat.fromString(line));
+						manager.addTask(task);
 						
-						id = comp(CSVTaskFormat.fromString(line).getId(), id);
+						if (!status.equals(Status.NEW)) {
+							manager.updateTask(task, task.getId());
+						}
 					}
+					id = getMaxId(task.getId(), id) + 1;
 				} else if (line.length() == 0) {
-					switchT = false;
+					toggler = false;
 					break;
 				}
 			}
 			
 			while (br.ready()) {
 				String line = br.readLine();
-				if (switchT == false) {
+				
+				if (toggler == false) {
 					for (Integer i : CSVTaskFormat.historyFromString(line)) {
-						if (fileBackedTasksManager.tasks.containsKey(i)) {
-							fileBackedTasksManager.getTask(i);
-						} else if (fileBackedTasksManager.epics.containsKey(i)) {
-							fileBackedTasksManager.getEpic(i);
-						} else if (fileBackedTasksManager.subtasks.containsKey(i)) {
-							fileBackedTasksManager.getSubtask(i);
+						if (manager.tasks.containsKey(i)) {
+							manager.getTask(i);
+						} else if (manager.epics.containsKey(i)) {
+							manager.getEpic(i);
+						} else if (manager.subtasks.containsKey(i)) {
+							manager.getSubtask(i);
 						}
 					}
 				}
 			}
 			
-			for (Integer epic : fileBackedTasksManager.epics.keySet()) {
-				fileBackedTasksManager.updateStatus(fileBackedTasksManager.epics.get(epic));
+			for (Integer epic : manager.epics.keySet()) {
+				manager.updateStatus(manager.epics.get(epic));
 			}
-			fileBackedTasksManager.id = id + 1;
+			manager.id = id;
 		} catch (NullPointerException e) {
 			System.out.println(e.getMessage());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		return fileBackedTasksManager;
+		return manager;
 	}
 	
-	private static int comp(int id1, int id2) {
+	private static int getMaxId(int id1, int id2) {
 		return Integer.max(id1, id2);
 	}
 }
