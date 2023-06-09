@@ -5,11 +5,12 @@ import main.java.tasks.Epic;
 import main.java.tasks.Subtask;
 import main.java.tasks.Task;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CSVTaskFormat {
-    private final static String firstLine = "id,type,name,status,description,epic";
+    private final static String firstLine = "id,type,name,status,description,epic,date";
     
     public static String getFirstLine() {
         return firstLine;
@@ -33,6 +34,13 @@ public class CSVTaskFormat {
         if (!value.equals(firstLine) && value.length() != 0) {
             String[] strSpl = value.split(",");
             Status status;
+            LocalDateTime time;
+            
+            if (strSpl[6].isEmpty() || strSpl[6].equals("null")) {
+                time = null;
+            } else {
+                time = LocalDateTime.parse(strSpl[6]);
+            }
             
             if (strSpl[3].equals(Status.NEW.toString())) {
                 status = Status.NEW;
@@ -46,17 +54,29 @@ public class CSVTaskFormat {
                 Task task = new Task(strSpl[2], strSpl[4]);
                 task.setId(Integer.parseInt(strSpl[0]));
                 task.setStatus(status);
+                
+                if (time != null) {
+                    task.setStartTime(time);
+                }
+                
                 return task;
             } else if (strSpl[1].equals(Type.EPIC.toString())) {
                 Epic epic = new Epic(strSpl[2], strSpl[4]);
                 epic.setId(Integer.parseInt(strSpl[0]));
                 epic.setStatus(status);
                 return epic;
-            } else {
+            } else if (strSpl[1].equals(Type.SUBTASK.toString())){
                 int id = Integer.parseInt(strSpl[5]);
                 Subtask subtask = new Subtask(strSpl[2], strSpl[4], status, id);
                 subtask.setId(Integer.parseInt(strSpl[0]));
+    
+                if (time != null) {
+                    subtask.setStartTime(time);
+                }
+                
                 return subtask;
+            } else {
+                return null;
             }
         } else {
             return null;

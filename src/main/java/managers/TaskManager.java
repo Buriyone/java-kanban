@@ -4,7 +4,9 @@ import main.java.tasks.Epic;
 import main.java.tasks.Subtask;
 import main.java.tasks.Task;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Set;
 
 public interface TaskManager {
     ArrayList<Task> getTasks();
@@ -46,4 +48,8 @@ public interface TaskManager {
     void deleteSubtask(int subtaskId);
 
     ArrayList<Task> getHistory();
+    
+    LocalDateTime getFreeTime();
+    
+    Set<Task> getPrioritizedTasks();
 }

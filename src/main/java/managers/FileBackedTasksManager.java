@@ -11,7 +11,9 @@ import main.java.tasks.Task;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
 	private final Path path;
@@ -167,6 +169,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	}
 	public static FileBackedTasksManager loadFromFile(File file) {
 		FileBackedTasksManager manager = new FileBackedTasksManager(file.toPath());
+		
 		try (Reader rdr = new FileReader(file, StandardCharsets.UTF_8)) {
 			int id = manager.id;
 			boolean toggler = true;
@@ -232,5 +235,25 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	
 	private static int getMaxId(int id1, int id2) {
 		return Integer.max(id1, id2);
+	}
+	
+	@Override
+	protected void updateData() {
+		super.updateData();
+		save();
+	}
+	
+	@Override
+	public LocalDateTime getFreeTime() {
+		LocalDateTime time = super.getFreeTime();
+		save();
+		return time;
+	}
+	
+	@Override
+	public Set<Task> getPrioritizedTasks() {
+		Set<Task> prioritizedTasks = super.getPrioritizedTasks();
+		save();
+		return prioritizedTasks;
 	}
 }

@@ -3,6 +3,7 @@ package main.java.tasks;
 import main.java.models.Status;
 import main.java.models.Type;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Subtask extends Task {
@@ -12,9 +13,19 @@ public class Subtask extends Task {
         super(taskName, descriptionTask);
         this.epicId = epicId;
     }
+    
+    public Subtask(String taskName, String descriptionTask, int epicId, LocalDateTime time) {
+        super(taskName, descriptionTask, time);
+        this.epicId = epicId;
+    }
 
     public Subtask(String taskName, String descriptionTask, Status status, int epicId) {
         super(taskName, descriptionTask, status);
+        this.epicId = epicId;
+    }
+    
+    public Subtask(String taskName, String descriptionTask, Status status, int epicId, LocalDateTime time) {
+        super(taskName, descriptionTask, status, time);
         this.epicId = epicId;
     }
 
@@ -39,7 +50,9 @@ public class Subtask extends Task {
         return getId() == subtask.getId() && epicId == subtask.getEpicId()
                 && Objects.equals(getName(), subtask.getName())
                 && Objects.equals(getDescription(), subtask.getDescription())
-                && Objects.equals(getStatus(), subtask.getStatus());
+                && Objects.equals(getStatus(), subtask.getStatus())
+                && Objects.equals(getDuration(), subtask.getDuration())
+                && Objects.equals(getStartTime(), subtask.getStartTime());
     }
 
     @Override
@@ -48,6 +61,8 @@ public class Subtask extends Task {
         if (getName() != null) {
             hash = hash + getName().hashCode() + getId() * 7 + getEpicId() * 7
                     + getDescription().hashCode() + getStatus().hashCode();
+        } else if (getStartTime() != null) {
+            hash = hash + getStartTime().hashCode() + getDuration() * 3;
         }
         hash = hash * 31;
         return hash;
@@ -55,6 +70,7 @@ public class Subtask extends Task {
 
     @Override
     public String toString () {
-        return getId() + "," + getType() + "," + getName() + "," + getStatus() + "," + getDescription() + "," + epicId;
+        return getId() + "," + getType() + "," + getName() + "," + getStatus() + "," + getDescription() + "," + epicId
+                + "," + getStartTime();
     }
 }
