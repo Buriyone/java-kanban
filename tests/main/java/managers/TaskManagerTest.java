@@ -6,44 +6,36 @@ import main.java.tasks.Subtask;
 import main.java.tasks.Task;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 abstract class TaskManagerTest<T extends TaskManager> {
-	protected TaskManager manager;
+	protected static TaskManager manager;
 	
-	protected static int taskEnder = 1;
-	protected static int epicEnder = 1;
-	protected static int subtaskEnder = 1;
+	protected static Task task;
+	protected static Epic epic;
+	protected static Subtask sub1;
+	protected static Subtask sub2;
+	protected static int taskId;
+	protected static int epicId;
+	protected static int subId1;
+	protected static int subId2;
 	
 	@Test
 	public void getTasksTest() {
-		Task task1 = createTask();
-		Task task2 = createTask();
-		
-		manager.addTask(task1);
-		manager.addTask(task2);
-		
-		ArrayList<Task> referenceTasks = new ArrayList<>();
-		referenceTasks.add(task1);
-		referenceTasks.add(task2);
-		
 		assertNotNull(manager.getTasks(), "Задачи не возвращаются.");
-		assertEquals(referenceTasks, manager.getTasks(), "Вернувшиеся задачи не совпадают.");
-		assertEquals(referenceTasks.size(), manager.getTasks().size(), "Неверное количество задач.");
+		assertEquals(task, manager.getTasks().get(0), "Вернувшиеся задачи не идентичны.");
+		assertEquals(1, manager.getTasks().size(), "Количество задач не совпадает.");
 	}
 	
 	@Test
 	public void deleteTasksTest() {
-		Task task1 = createTask();
-		Task task2 = createTask();
-		
-		manager.addTask(task1);
-		manager.addTask(task2);
-		
 		assertNotNull(manager.getTasks(), "Задачи не возвращаются.");
 		assertFalse(manager.getTasks().isEmpty(), "Список задач пуст.");
+		assertEquals(1, manager.getTasks().size(), "Количество задач не совпадает.");
 		
 		manager.deleteTasks();
 		
@@ -53,98 +45,62 @@ abstract class TaskManagerTest<T extends TaskManager> {
 	
 	@Test
 	public void getTaskTest() {
-		Task task1 = createTask();
-		
-		manager.addTask(task1);
-		
-		int id = task1.getId();
-		
-		assertNotNull(manager.getTasks(), "Задачи не возвращаются.");
-		assertEquals(task1, manager.getTask(id), "Вернувшаяся задача отличается.");
-		assertNotEquals(task1, manager.getTask(id+31), "Неверный id не влияет на результат.");
+		assertNotNull(manager.getTask(taskId), "Задача не найдена.");
+		assertEquals(task, manager.getTask(taskId), "Вернувшаяся задача отличается.");
+		assertNotEquals(task, manager.getTask(taskId+31), "Неверный id не влияет на результат.");
 	}
 	
 	@Test
 	public void addTaskTest(){
-		Task task1 = createTask();
+		assertNotNull(manager.getTasks(), "Задачи не найдены.");
+		assertEquals(1, manager.getTasks().size(), "Количество задач не совпадает.");
 		
-		manager.addTask(task1);
+		Task tempTask = new Task("name", "description");
+		manager.addTask(tempTask);
+		final int id = tempTask.getId();
 		
-		int id = task1.getId();
-		
-		assertNotNull(task1, "Задача не найдена.");
-		assertEquals(task1, manager.getTask(id), "Задачи не совпадают.");
-		assertNotNull(manager.getTasks(), "Задачи на возвращаются.");
-		assertEquals(1, manager.getTasks().size(), "Неверное количество задач.");
-		assertEquals(task1, manager.getTasks().get(0), "Задачи не совпадают.");
+		assertNotNull(manager.getTask(id), "Задача не найдена.");
+		assertNotNull(manager.getTasks(), "Задачи не найдены.");
+		assertEquals(tempTask, manager.getTask(id), "Задачи не идентичны.");
+		assertEquals(2, manager.getTasks().size(), "Количество задач не совпадает.");
 	}
 	
 	@Test
 	public void updateTaskTest() {
-		Task task1 = createTask();
+		task.setName("updateName");
+		task.setDescription("updateDescription");
+		task.setStatus(Status.IN_PROGRESS);
+		task.setStartTime(LocalDateTime.now().plusMinutes(86));
+		manager.updateTask(task);
 		
-		manager.addTask(task1);
-		
-		int id = task1.getId();
-		
-		assertNotNull(manager.getTask(id), "Задача не возвращается.");
-		assertEquals(task1, manager.getTask(id), "Задачи не совпадают.");
-		
-		Task task1_1 = new Task("taskName1", "descriptionTask1", Status.DONE);
-		
-		manager.updateTask(task1_1, id);
-		
-		assertNotNull(manager.getTask(id), "После обновления задача не возвращается.");
-		assertEquals(task1_1, manager.getTask(id), "После обновления задачи не совпадают.");
+		assertNotNull(manager.getTask(taskId), "После обновления задача не найдена.");
+		assertEquals(task, manager.getTask(taskId), "После обновления задачи не идентичны.");
 	}
 	
 	@Test
 	public void deleteTaskTest() {
-		Task task1 = createTask();
-		Task task2 = createTask();
-		
-		manager.addTask(task1);
-		manager.addTask(task2);
-		
-		int id = task1.getId();
-		
-		assertNotNull(manager.getTask(id), "Задача не возвращается.");
+		assertNotNull(manager.getTask(taskId), "Задача не найдена.");
 		assertNotNull(manager.getTasks(), "Задачи не возвращаются.");
-		assertEquals(2, manager.getTasks().size(), "Количество задач отличается.");
+		assertEquals(1, manager.getTasks().size(), "Количество задач не совпадает.");
 		
-		manager.deleteTask(id);
+		manager.deleteTask(taskId);
 		
-		assertNull(manager.getTask(id), "После удаления задача возвращается.");
-		assertEquals(1, manager.getTasks().size(), "После удаления количество задач не изменилось");
+		assertNull(manager.getTask(taskId), "После удаления задача обнаружена.");
+		assertEquals(0, manager.getTasks().size(), "После удаления количество задач не совпадает.");
 	}
 	
 	@Test
 	public void getEpicsTest() {
-		Epic epic1 = createEpic();
-		Epic epic2 = createEpic();
-		
-		manager.addEpic(epic1);
-		manager.addEpic(epic2);
-		
-		ArrayList<Epic> referenceEpics = new ArrayList<>();
-		referenceEpics.add(epic1);
-		referenceEpics.add(epic2);
-		
 		assertNotNull(manager.getEpics(), "Эпики не возвращаются.");
-		assertEquals(referenceEpics, manager.getEpics(), "Вернувшиеся эпики не совпадают.");
-		assertEquals(referenceEpics.size(), manager.getEpics().size(), "Неверное количество эпиков.");
+		assertEquals(epic, manager.getEpics().get(0), "Вернувшиеся эпики не совпадают.");
+		assertEquals(1, manager.getEpics().size(), "Количество эпиков не совпадает.");
 	}
 	
 	@Test
 	public void deleteEpicsTest() {
-		Epic epic1 = createEpic();
-		Epic epic2 = createEpic();
-		
-		manager.addEpic(epic1);
-		manager.addEpic(epic2);
-		
 		assertNotNull(manager.getEpics(), "Эпики не возвращаются.");
 		assertFalse(manager.getEpics().isEmpty(), "Список эпиков пуст.");
+		assertEquals(1, manager.getEpics().size(), "Количество эпиков не совпадает.");
 		
 		manager.deleteEpics();
 		
@@ -154,156 +110,107 @@ abstract class TaskManagerTest<T extends TaskManager> {
 	
 	@Test
 	public void getEpicTest() {
-		Epic epic1 = createEpic();
-		
-		manager.addEpic(epic1);
-		
-		int id = epic1.getId();
-		
-		assertNotNull(manager.getEpics(), "Эпики не возвращаются.");
-		assertEquals(epic1, manager.getEpic(id), "Вернувшийся эпик отличается.");
-		assertNotEquals(epic1, manager.getEpic(id+31), "Неверный id не влияет на результат.");
+		assertNotNull(manager.getEpic(epicId), "Эпик не найден.");
+		assertEquals(epic, manager.getEpic(epicId), "Вернувшийся эпик отличается.");
+		assertNotEquals(epic, manager.getEpic(epicId+31), "Неверный id не влияет на результат.");
 	}
 	
 	@Test
 	public void addEpicTest() {
-		Epic epic1 = createEpic();
+		assertNotNull(manager.getEpics(), "Эпики не найдены.");
+		assertEquals(1, manager.getEpics().size(), "Количество эпиков не совпадает.");
 		
-		manager.addEpic(epic1);
-		
-		int id = epic1.getId();
+		Epic tempEpic = new Epic("name", "nameDescription");
+		manager.addEpic(tempEpic);
+		int id = tempEpic.getId();
 		
 		assertNotNull(manager.getEpic(id), "Эпик не найден.");
-		assertEquals(epic1, manager.getEpic(id), "Эпики не совпадают.");
-		assertNotNull(manager.getEpics(), "Эпики на возвращаются.");
-		assertEquals(1, manager.getEpics().size(), "Неверное количество эпиков.");
-		assertEquals(epic1, manager.getEpics().get(0), "Эпики не совпадают.");
+		assertNotNull(manager.getEpics(), "Эпики не найдены.");
+		assertEquals(tempEpic, manager.getEpic(id), "Эпики не идентичны.");
+		assertEquals(2, manager.getEpics().size(), "Количество эпиков не совпадает.");
 	}
 	
 	@Test
 	public void updateEpicTest() {
-		Epic epic1 = createEpic();
+		epic.setName("updateName");
+		epic.setDescription("updateDescription");
 		
-		manager.addEpic(epic1);
+		manager.updateEpic(epic);
 		
-		int id = epic1.getId();
+		assertNotNull(manager.getEpic(epicId), "Эпик не возвращается.");
+		assertEquals(epic, manager.getEpic(epicId), "Эпики не идентичны.");
+	}
+	
+	@Test
+	public void updateStatusTest() {
+		assertNotNull(manager.getEpic(epicId), "Эпик не найден.");
+		assertEquals(manager.getEpic(epicId).getStatus(), Status.NEW, "Неверный статус.");
 		
-		manager.addSubtask(createSubtask(id));
-		manager.addSubtask(createSubtask(id));
+		sub1.setStatus(Status.DONE);
+		manager.updateSubtask(sub1);
 		
-		assertNotNull(manager.getEpic(id), "Эпик не возвращается.");
-		assertEquals(epic1, manager.getEpic(id), "Эпики не совпадают.");
+		assertEquals(manager.getEpic(epicId).getStatus(), Status.IN_PROGRESS, "Неверный статус.");
 		
-		Epic epic1_1 = createEpic();
+		sub2.setStatus(Status.IN_PROGRESS);
+		manager.updateSubtask(sub2);
 		
-		manager.updateEpic(epic1_1, id);
+		assertEquals(manager.getEpic(epicId).getStatus(), Status.IN_PROGRESS, "Неверный статус.");
 		
-		assertNotNull(manager.getEpic(id), "После обновления эпик не возвращается.");
-		assertEquals(epic1_1, manager.getEpic(id), "После обновления эпики не совпадают.");
-		assertEquals(epic1.getId(), manager.getEpic(id).getId(), "После обновления id не совпадает.");
-		assertEquals(epic1.getStatus(), manager.getEpic(id).getStatus(),
-				"После обновления статус не совпадает.");
-		assertEquals(epic1.getSubtasks(), manager.getEpic(id).getSubtasks(),
-				"После обновления список подзадач не совпадает.");
+		manager.deleteSubtask(subId2);
+		
+		assertEquals(manager.getEpic(epicId).getStatus(), Status.DONE, "Неверный статус.");
+		
+		manager.deleteSubtasks();
+		
+		assertEquals(manager.getEpic(epicId).getStatus(), Status.NEW, "Неверный статус.");
 	}
 	
 	@Test
 	public void deleteEpicTest() {
-		Epic epic1 = createEpic();
-		Epic epic2 = createEpic();
-		
-		manager.addEpic(epic1);
-		manager.addEpic(epic2);
-		
-		int id = epic1.getId();
-		
-		manager.addSubtask(createSubtask(id));
-		manager.addSubtask(createSubtask(id));
-		
-		assertNotNull(manager.getEpic(id), "Эпик не возвращается.");
+		assertNotNull(manager.getEpic(epicId), "Эпик не возвращается.");
 		assertNotNull(manager.getEpics(), "Эпики не возвращаются.");
-		assertEquals(2, manager.getEpics().size(), "Количество эпиков отличается.");
-		assertEquals(2, manager.getSubtasks().size(), "Количество подзадач отличается.");
-		assertEquals(2, manager.getEpic(id).getSubtasks().size(),
-				"Количество подзадач внутри эпика отличается.");
-		assertEquals(epic1.getSubtasks(), manager.getEpic(id).getSubtasks(), "Подзадачи отличаются.");
+		assertEquals(1, manager.getEpics().size(), "Количество эпиков отличается.");
+		assertEquals(2, manager.getSubtasks().size(), "Количество подзадач эпика не совпадает.");
 		
-		manager.deleteEpic(id);
+		manager.deleteEpic(epicId);
 		
-		assertNull(manager.getEpic(id), "Эпик не был удален.");
-		assertEquals(1, manager.getEpics().size(), "После удаления количество эпиков не изменилось.");
+		assertNull(manager.getEpic(epicId), "Эпик не был удален.");
+		assertEquals(0, manager.getEpics().size(), "После удаления количество эпиков не изменилось.");
 		assertEquals(0, manager.getSubtasks().size(),
 				"После удаления эпика его подзадачи не были удалены.");
 	}
 	
 	@Test
 	public void getEpicSubtasksTest() {
-		Epic epic1 = createEpic();
+		List<Subtask> expectSubtasks = new ArrayList<>();
+		expectSubtasks.add(sub1);
+		expectSubtasks.add(sub2);
 		
-		manager.addEpic(epic1);
-		
-		int id = epic1.getId();
-		
-		Subtask sub1 = createSubtask(id);
-		Subtask sub2 = createSubtask(id);
-		
-		ArrayList<Subtask> referenceSubtasks = new ArrayList<>();
-		referenceSubtasks.add(sub1);
-		referenceSubtasks.add(sub2);
-		
-		manager.addSubtask(sub1);
-		manager.addSubtask(sub2);
-		
-		assertNotNull(manager.getEpicSubtasks(id), "Подзадачи эпика не возвращаются.");
-		assertEquals(2, manager.getEpicSubtasks(id).size(), "Количество подзадач эпика отличается.");
-		assertEquals(referenceSubtasks, manager.getEpicSubtasks(id), "Подзадачи эпиков отличаются.");
-		assertEquals(manager.getSubtasks(), manager.getEpic(id).getSubtasks(),
-				"Списки подзадач эпика и подзадач в мапе отличаются.");
+		assertNotNull(manager.getEpicSubtasks(epicId), "Подзадачи эпика не возвращаются.");
+		assertEquals(2, manager.getEpicSubtasks(epicId).size(),
+				"Количество подзадач эпика не совпадает.");
+		assertEquals(expectSubtasks, manager.getEpicSubtasks(epicId), "Подзадачи эпика не идентичны.");
 	}
 	
 	@Test
 	public void getSubtasksTest() {
-		Epic epic = createEpic();
-		
-		manager.addEpic(epic);
-		
-		int id = epic.getId();
-		
-		Subtask sub1 = createSubtask(id);
-		Subtask sub2 = createSubtask(id);
-		
-		ArrayList<Subtask> referenceSubtask = new ArrayList<>();
-		referenceSubtask.add(sub1);
-		referenceSubtask.add(sub2);
-		
-		manager.addSubtask(sub1);
-		manager.addSubtask(sub2);
+		List<Subtask> expectSubtasks = new ArrayList<>();
+		expectSubtasks.add(sub1);
+		expectSubtasks.add(sub2);
 		
 		assertNotNull(manager.getSubtasks(), "Подзадачи не возвращаются.");
-		assertEquals(referenceSubtask, manager.getSubtasks(), "Вернувшиеся подзадачи не совпадают.");
-		assertEquals(referenceSubtask.size(), manager.getSubtasks().size(),
+		assertEquals(expectSubtasks, manager.getSubtasks(), "Вернувшиеся подзадачи не идентичны.");
+		assertEquals(expectSubtasks.size(), manager.getSubtasks().size(),
 				"Количество подзадач не совпадает.");
 	}
 	
 	@Test
 	public void deleteSubtasksTest() {
-		Epic epic = createEpic();
-		
-		manager.addEpic(epic);
-		
-		int id = epic.getId();
-		
-		Subtask sub1 = createSubtask(id);
-		Subtask sub2 = createSubtask(id);
-		
-		manager.addSubtask(sub1);
-		manager.addSubtask(sub2);
-		
 		assertNotNull(manager.getSubtasks(), "Подзадачи не возвращаются.");
 		assertFalse(manager.getSubtasks().isEmpty(), "Список подзадач пуст.");
-		assertEquals(2, manager.getSubtasks().size(), "Количество подзадач отличается.");
-		assertEquals(2, manager.getEpic(id).getSubtasks().size(),
-				"Количество подзадач эпика отличается.");
+		assertEquals(2, manager.getSubtasks().size(), "Количество подзадач не совпадает.");
+		assertEquals(2, manager.getEpic(epicId).getSubtasks().size(),
+				"Количество подзадач эпика не совпадает.");
 		
 		manager.deleteSubtasks();
 		
@@ -313,202 +220,75 @@ abstract class TaskManagerTest<T extends TaskManager> {
 	
 	@Test
 	public void getSubtaskTest() {
-		Epic epic = createEpic();
-		
-		manager.addEpic(epic);
-		
-		int id = epic.getId();
-		
-		Subtask sub1 = createSubtask(id);
-		
-		manager.addSubtask(sub1);
-		
-		int subId = sub1.getId();
-		
-		assertEquals(sub1, manager.getSubtask(subId), "Вернувшаяся подзадача отличается.");
-		assertNotEquals(sub1, manager.getSubtask(subId+31), "Неверный id не влияет на результат.");
+		assertNotNull(manager.getSubtask(subId1), "Подзадача не найдена");
+		assertEquals(sub1, manager.getSubtask(subId1), "Вернувшаяся подзадача не идентична.");
+		assertNotEquals(sub1, manager.getSubtask(subId1+31), "Неверный id не влияет на результат.");
 	}
 	
 	@Test
 	public void addSubtaskTest() {
-		Epic epic = createEpic();
+		assertNotNull(manager.getSubtasks(), "Подзадачи не найдены.");
+		assertNotNull(manager.getEpicSubtasks(epicId), "Подзадачи эпика не найдены.");
+		assertEquals(2, manager.getSubtasks().size(), "Количество подзадач не совпадает.");
+		assertEquals(2, manager.getEpicSubtasks(epicId).size(),
+				"Количество подзадач эпика не совпадает.");
 		
-		manager.addEpic(epic);
+		Subtask tempSub = new Subtask("tempName", "tempDescription", epicId);
+		manager.addSubtask(tempSub);
+		final int id = tempSub.getId();
 		
-		int id = epic.getId();
-		
-		Subtask sub1 = createSubtask(id);
-		
-		manager.addSubtask(sub1);
-		
-		int subId = sub1.getId();
-		
-		assertNotNull(manager.getSubtask(subId), "Подзадача не найдена.");
-		assertEquals(sub1, manager.getSubtask(subId), "Подзадачи не совпадают.");
-		assertEquals(1, manager.getSubtasks().size(), "Неверное количество подзадач.");
-		assertEquals(epic.getSubtasks().get(0), manager.getSubtask(subId),
-				"Подзадача внутри эпика и в мапе отличается.");
+		assertNotNull(manager.getSubtask(id), "Подзадача не найдена.");
+		assertNotNull(manager.getEpicSubtasks(epicId), "Подзадачи эпика не найдены.");
+		assertEquals(tempSub, manager.getSubtask(id), "Подзадачи не идентичны.");
+		assertEquals(3, manager.getSubtasks().size(), "Количество подзадач не совпадает.");
+		assertEquals(3, manager.getEpicSubtasks(epicId).size(),
+				"Количество подзадач эпика не совпадает.");
 	}
 	
 	@Test
 	public void updateSubtaskTest() {
-		Epic epic = createEpic();
-		
-		manager.addEpic(epic);
-		
-		int epicId = epic.getId();
-		
-		Subtask sub1 = createSubtask(epicId);
-		Subtask sub2 = createSubtask(epicId);
-		
-		manager.addSubtask(sub1);
-		manager.addSubtask(sub2);
-		
-		int subId_1 = sub1.getId();
-		int subId_2 = sub2.getId();
-		
-		assertNotNull(manager.getSubtask(subId_1), "Подзадача не возвращается.");
-		assertEquals(sub1, manager.getSubtask(subId_1), "Подзадачи не совпадают.");
-		assertEquals(Status.NEW, manager.getEpic(epicId).getStatus(), "Статусы не совпадают");
-		
+		sub1.setName("updateName");
+		sub1.setDescription("updateDescription");
 		sub1.setStatus(Status.IN_PROGRESS);
+		sub1.setStartTime(LocalDateTime.now().plusMinutes(35));
+		manager.updateSubtask(sub1);
 		
-		manager.updateSubtask(sub1, subId_1);
-		
-		assertNotNull(manager.getSubtask(subId_1), "После обновления 1 подзадача не возвращается.");
-		assertEquals(sub1, manager.getSubtask(subId_1), "После обновления 1 подзадачи не совпадают.");
-		assertEquals(Status.IN_PROGRESS, manager.getEpic(epicId).getStatus(),
-				"После обновления 1 статусы не совпадают");
-		
-		sub1.setStatus(Status.DONE);
-		
-		manager.updateSubtask(sub1, subId_1);
-		
-		assertNotNull(manager.getSubtask(subId_1), "После обновления 2 подзадача не возвращается.");
-		assertEquals(sub1, manager.getSubtask(subId_1), "После обновления 2 подзадачи не совпадают.");
-		assertEquals(Status.IN_PROGRESS, manager.getEpic(epicId).getStatus(), "Статусы не совпадают");
-		
-		sub2.setStatus(Status.IN_PROGRESS);
-		
-		manager.updateSubtask(sub2, subId_2);
-		
-		assertNotNull(manager.getSubtask(subId_2), "После обновления 3 подзадача не возвращается.");
-		assertEquals(sub2, manager.getSubtask(subId_2), "После обновления 3 подзадачи не совпадают.");
-		assertEquals(Status.IN_PROGRESS, manager.getEpic(epicId).getStatus(), "Статусы не совпадают");
-		
-		sub2.setStatus(Status.DONE);
-		
-		manager.updateSubtask(sub2, subId_2);
-		
-		assertNotNull(manager.getSubtask(subId_2), "После обновления 4 подзадача не возвращается.");
-		assertEquals(sub2, manager.getSubtask(subId_2), "После обновления 4 подзадачи не совпадают.");
-		assertEquals(Status.DONE, manager.getEpic(epicId).getStatus(), "Статусы не совпадают");
+		assertNotNull(manager.getSubtask(subId1), "После обновления подзадача не найдена.");
+		assertEquals(sub1, manager.getSubtask(subId1), "После обновления задачи не идентичны.");
 	}
 	
 	@Test
 	public void deleteSubtaskTest() {
-		Epic epic = createEpic();
+		assertNotNull(manager.getSubtask(subId1), "Подзадача не найдена.");
+		assertNotNull(manager.getSubtasks(), "Подзадачи не найдены.");
+		assertNotNull(manager.getEpicSubtasks(epicId), "Подзадачи эпика не найдены.");
+		assertEquals(2, manager.getSubtasks().size(), "Количество подзадач не совпадает.");
+		assertEquals(2, manager.getEpicSubtasks(epicId).size(),
+				"Количество подзадач эпика не совпадает.");
 		
-		manager.addEpic(epic);
+		manager.deleteSubtask(subId1);
 		
-		int epicId = epic.getId();
-		
-		Subtask sub1 = createSubtask(epicId);
-		Subtask sub2 = createSubtask(epicId);
-		
-		manager.addSubtask(sub1);
-		manager.addSubtask(sub2);
-		
-		int subId_1 = sub1.getId();
-		int subId_2 = sub2.getId();
-		
-		sub1.setStatus(Status.IN_PROGRESS);
-		sub2.setStatus(Status.DONE);
-		
-		manager.updateSubtask(sub1, subId_1);
-		manager.updateSubtask(sub2, subId_2);
-		
-		assertNotNull(manager.getSubtasks(), "Подзадачи не возвращаются.");
-		assertEquals(2, manager.getSubtasks().size(), "Количество подзадач отличается.");
-		assertEquals(Status.IN_PROGRESS, manager.getEpic(epicId).getStatus(), "Статусы отличаются.");
-		
-		manager.deleteSubtask(subId_1);
-		
-		assertNull(manager.getSubtask(subId_1), "Подзадача не была удалена.");
-		assertEquals(1, manager.getSubtasks().size(), "После удаления количество задач не изменилось");
-		assertEquals(Status.DONE, manager.getEpic(epicId).getStatus(), "Статусы отличаются.");
-		
-		manager.deleteSubtask(subId_2);
-		
-		assertNull(manager.getSubtask(subId_2), "Подзадача не была удалена.");
-		assertEquals(0, manager.getSubtasks().size(), "После удаления количество задач не изменилось");
-		assertEquals(Status.NEW, manager.getEpic(epicId).getStatus(), "Статусы отличаются.");
+		assertNull(manager.getSubtask(subId1), "После удаления задача обнаружена.");
+		assertEquals(1, manager.getSubtasks().size(),
+				"После удаления количество подзадач не совпадает.");
+		assertEquals(1, manager.getEpicSubtasks(epicId).size(),
+				"После удаления количество подзадач эпика не совпадает.");
+		assertEquals(sub2, manager.getSubtasks().get(0), "Удалена не та подзадача.");
 	}
 	
 	@Test
 	public void getHistoryTest() {
-		Task task1 = createTask();
-		Task task2 = createTask();
-		Task task3 = createTask();
+		assertTrue(manager.getHistory().isEmpty(), "История не пуста.");
 		
-		manager.addTask(task1);
-		manager.addTask(task2);
-		manager.addTask(task3);
+		List<Task> tempHistory = new ArrayList<>();
+		tempHistory.add(manager.getSubtask(subId1));
+		tempHistory.add(manager.getTask(taskId));
+		tempHistory.add(manager.getEpic(epicId));
 		
-		int taskId_1 = task1.getId();
-		int taskId_2 = task2.getId();
-		int taskId_3 = task3.getId();
+		String expectedHistory = tempHistory.toString();
 		
-		assertEquals(0, manager.getHistory().size(), "История не пуста.");
-		
-		ArrayList<Task> referenceHistory = new ArrayList<>();
-		
-		referenceHistory.add(manager.getTask(taskId_1));
-		referenceHistory.add(manager.getTask(taskId_2));
-		referenceHistory.add(manager.getTask(taskId_3));
-		
-		assertNotNull(manager.getHistory(), "История не возвращается.");
-		assertEquals(referenceHistory, manager.getHistory(), "История отличается.");
-		
-		referenceHistory.remove(1);
-		manager.deleteTask(taskId_2);
-		
-		assertEquals(referenceHistory, manager.getHistory(),
-				"После удаления из середины - история отличается.");
-		
-		referenceHistory.remove(1);
-		manager.deleteTask(taskId_3);
-		
-		assertEquals(referenceHistory, manager.getHistory(),
-				"После удаления из конца - история отличается.");
-		
-		manager.getTask(taskId_1);
-		manager.getTask(taskId_1);
-		
-		assertEquals(referenceHistory, manager.getHistory(), "Дублирование влияет на историю.");
-	}
-	
-	protected static Task createTask() {
-		Task task = new Task("Task_"+ taskEnder, "descriptionTask_" + taskEnder);
-		
-		taskEnder += 1;
-		
-		return task;
-	}
-	
-	protected static Epic createEpic() {
-		Epic epic = new Epic("Epic_"+ epicEnder, "descriptionEpic_" + epicEnder);
-		
-		epicEnder += 1;
-		
-		return epic;
-	}
-	
-	protected static Subtask createSubtask(int id) {
-		Subtask subtask = new Subtask("Sub_"+ subtaskEnder, "descriptionSub_" + subtaskEnder, id);
-		
-		subtaskEnder += 1;
-		
-		return subtask;
+		assertFalse(manager.getHistory().isEmpty(), "Задачи не были добавлены в историю.");
+		assertEquals(3, manager.getHistory().size(), "Количество задач в истории не совпадает.");
+		assertEquals(expectedHistory, manager.getHistory().toString(), "История не идентична.");
 	}
 }

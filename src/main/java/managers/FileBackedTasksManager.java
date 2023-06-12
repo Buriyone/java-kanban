@@ -11,8 +11,7 @@ import main.java.tasks.Task;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
@@ -23,7 +22,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	}
 	
 	@Override
-	public ArrayList<Task> getTasks() {
+	public List<Task> getTasks() {
 		return super.getTasks();
 	}
 	
@@ -47,8 +46,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	}
 	
 	@Override
-	public void updateTask(Task task, int taskId) {
-		super.updateTask(task, taskId);
+	public void updateTask(Task task) {
+		super.updateTask(task);
 		save();
 	}
 	
@@ -59,7 +58,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	}
 	
 	@Override
-	public ArrayList<Epic> getEpics() {
+	public List<Epic> getEpics() {
 		return super.getEpics();
 	}
 	
@@ -88,8 +87,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	}
 	
 	@Override
-	public void updateEpic(Epic epic, int epicId) {
-		super.updateEpic(epic, epicId);
+	public void updateEpic(Epic epic) {
+		super.updateEpic(epic);
 		save();
 	}
 	
@@ -100,12 +99,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	}
 	
 	@Override
-	public ArrayList<Subtask> getEpicSubtasks(int epicId) {
+	public List<Subtask> getEpicSubtasks(int epicId) {
 		return super.getEpicSubtasks(epicId);
 	}
 	
 	@Override
-	public ArrayList<Subtask> getSubtasks() {
+	public List<Subtask> getSubtasks() {
 		return super.getSubtasks();
 	}
 	
@@ -129,8 +128,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	}
 	
 	@Override
-	public void updateSubtask(Subtask subtask, int subtaskId) {
-		super.updateSubtask(subtask, subtaskId);
+	public void updateSubtask(Subtask subtask) {
+		super.updateSubtask(subtask);
 		save();
 	}
 	
@@ -141,7 +140,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	}
 	
 	@Override
-	public ArrayList<Task> getHistory() {
+	public List<Task> getHistory() {
 		return super.getHistory();
 	}
 	
@@ -172,14 +171,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 		
 		try (Reader rdr = new FileReader(file, StandardCharsets.UTF_8)) {
 			int id = manager.id;
-			boolean toggler = true;
 			BufferedReader br = new BufferedReader(rdr);
 			
 			while (br.ready()) {
 				String line = br.readLine();
 				Task task = CSVTaskFormat.fromString(line);
 				
-				if (task != null && toggler == true) {
+				if (task != null) {
 					Type type = task.getType();
 					Status status = task.getStatus();
 					
@@ -189,18 +187,17 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 						manager.addSubtask((Subtask) task);
 						
 						if (!status.equals(Status.NEW)) {
-							manager.updateSubtask((Subtask) task, task.getId());
+							manager.updateSubtask((Subtask) task);
 						}
 					} else if (type.equals(Type.TASK)) {
 						manager.addTask(task);
 						
 						if (!status.equals(Status.NEW)) {
-							manager.updateTask(task, task.getId());
+							manager.updateTask(task);
 						}
 					}
 					id = getMaxId(task.getId(), id) + 1;
 				} else if (line.length() == 0) {
-					toggler = false;
 					break;
 				}
 			}
@@ -208,8 +205,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 			while (br.ready()) {
 				String line = br.readLine();
 				
-				if (toggler == false) {
-					for (Integer i : CSVTaskFormat.historyFromString(line)) {
+				for (Integer i : CSVTaskFormat.historyFromString(line)) {
 						if (manager.tasks.containsKey(i)) {
 							manager.getTask(i);
 						} else if (manager.epics.containsKey(i)) {
@@ -218,7 +214,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 							manager.getSubtask(i);
 						}
 					}
-				}
 			}
 			
 			for (Integer epic : manager.epics.keySet()) {
@@ -235,19 +230,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 	
 	private static int getMaxId(int id1, int id2) {
 		return Integer.max(id1, id2);
-	}
-	
-	@Override
-	protected void updateData() {
-		super.updateData();
-		save();
-	}
-	
-	@Override
-	public LocalDateTime getFreeTime() {
-		LocalDateTime time = super.getFreeTime();
-		save();
-		return time;
 	}
 	
 	@Override

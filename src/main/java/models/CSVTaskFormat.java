@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CSVTaskFormat {
-    private final static String firstLine = "id,type,name,status,description,epic,date";
+    private final static String firstLine = "id,type,name,status,description,date,epic";
     
     public static String getFirstLine() {
         return firstLine;
@@ -36,10 +36,10 @@ public class CSVTaskFormat {
             Status status;
             LocalDateTime time;
             
-            if (strSpl[6].isEmpty() || strSpl[6].equals("null")) {
+            if (strSpl[5].equals("null")) {
                 time = null;
             } else {
-                time = LocalDateTime.parse(strSpl[6]);
+                time = LocalDateTime.parse(strSpl[5]);
             }
             
             if (strSpl[3].equals(Status.NEW.toString())) {
@@ -66,8 +66,9 @@ public class CSVTaskFormat {
                 epic.setStatus(status);
                 return epic;
             } else if (strSpl[1].equals(Type.SUBTASK.toString())){
-                int id = Integer.parseInt(strSpl[5]);
-                Subtask subtask = new Subtask(strSpl[2], strSpl[4], status, id);
+                int id = Integer.parseInt(strSpl[6]);
+                Subtask subtask = new Subtask(strSpl[2], strSpl[4], id);
+                subtask.setStatus(status);
                 subtask.setId(Integer.parseInt(strSpl[0]));
     
                 if (time != null) {

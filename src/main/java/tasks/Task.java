@@ -3,15 +3,16 @@ package main.java.tasks;
 import main.java.models.Status;
 import main.java.models.Type;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Task {
+public class Task implements Comparable<Task>{
     private String name;
     private String description;
     private Status status;
     private int id;
-    private final int duration;
+    private int duration;
     private LocalDateTime startTime;
 
     public Task(String name, String description) {
@@ -27,18 +28,22 @@ public class Task {
         this.startTime = time;
         this.duration = 15;
     }
-    public Task(String name, String description, Status status) {
-        this.name = name;
-        this.description = description;
-        this.status = status;
-        this.duration = 15;
-    }
-    public Task(String name, String description, Status status, LocalDateTime time) {
-        this.name = name;
-        this.description = description;
-        this.status = status;
-        this.startTime = time;
-        this.duration = 15;
+    
+    @Override
+    public int compareTo(Task task) {
+        if (this.getStartTime() == null) {
+            return 1;
+        } else if(task.getStartTime() == null){
+            return -1;
+        } else if(this.getStartTime() == null && task.getStartTime() == null){
+            return 1;
+        } else {
+            if (this.startTime.isBefore(task.startTime)) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
     }
     
     public LocalDateTime getEndTime() {
@@ -55,6 +60,10 @@ public class Task {
     
     public int getDuration() {
         return this.duration;
+    }
+    
+    protected void setDuration(int duration){
+        this.duration = duration;
     }
     
     public void setStartTime(LocalDateTime time) {
@@ -124,6 +133,6 @@ public class Task {
 
     @Override
     public String toString () {
-        return id + "," + getType() + "," + name + "," + status + "," + description + "," + "," + startTime;
+        return id + "," + getType() + "," + name + "," + status + "," + description + "," + startTime;
     }
 }

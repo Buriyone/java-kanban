@@ -4,12 +4,11 @@ import main.java.tasks.Epic;
 import main.java.tasks.Subtask;
 import main.java.tasks.Task;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public interface TaskManager {
-    ArrayList<Task> getTasks();
+    List<Task> getTasks();
 
     void deleteTasks();
 
@@ -17,11 +16,11 @@ public interface TaskManager {
 
     void addTask(Task task);
 
-    void updateTask(Task task, int taskId);
+    void updateTask(Task task);
 
     void deleteTask(int id);
 
-    ArrayList<Epic> getEpics();
+    List<Epic> getEpics();
 
     void deleteEpics();
 
@@ -29,13 +28,13 @@ public interface TaskManager {
 
     void addEpic(Epic epic);
 
-    void updateEpic(Epic epic, int epicId);
+    void updateEpic(Epic epic);
 
     void deleteEpic(int theEpic);
 
-    ArrayList<Subtask> getEpicSubtasks(int epicId);
+    List<Subtask> getEpicSubtasks(int epicId);
 
-    ArrayList<Subtask> getSubtasks();
+    List<Subtask> getSubtasks();
 
     void deleteSubtasks();
 
@@ -43,13 +42,11 @@ public interface TaskManager {
 
     void addSubtask(Subtask subtask);
 
-    void updateSubtask(Subtask subtask, int subtaskId);
+    void updateSubtask(Subtask subtask);
 
     void deleteSubtask(int subtaskId);
 
-    ArrayList<Task> getHistory();
-    
-    LocalDateTime getFreeTime();
+    List<Task> getHistory();
     
     Set<Task> getPrioritizedTasks();
 }

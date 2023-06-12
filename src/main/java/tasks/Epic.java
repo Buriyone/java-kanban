@@ -2,6 +2,7 @@ package main.java.tasks;
 
 import main.java.models.Type;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,72 +10,34 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Epic extends Task {
-	private ArrayList<Subtask> subtasks = new ArrayList<>();
+	private final List<Subtask> subtasks = new ArrayList<>();
+	
+	private LocalDateTime endTime;
 	
 	public Epic(String taskName, String descriptionEpic) {
 		super(taskName, descriptionEpic);
 	}
 	
+	public void recalculationEpicTime() {
+		if (!subtasks.isEmpty()) {
+			List<Subtask> subSort = subtasks.stream()
+					.filter(subtask -> subtask.getStartTime() != null)
+					.collect(Collectors.toList());
+			
+			if (!subSort.isEmpty()) {
+				setStartTime(subSort.get(0).getStartTime());
+				endTime = subSort.get(subSort.size() - 1).getEndTime();
+				setDuration(Duration.between(getStartTime(), endTime).toMinutesPart());
+			}
+		}
+	}
+	
 	public LocalDateTime getEndTime() {
-		if (!subtasks.isEmpty()) {
-			List<Subtask> sudSort = subtasks.stream()
-					.filter(subtask -> subtask.getEndTime() != null)
-					.collect(Collectors.toList());
-			
-			if (!sudSort.isEmpty()) {
-				return sudSort.get(sudSort.size() - 1).getEndTime();
-			} else {
-				return null;
-			}
-		} else {
-			return null;
-		}
+		return endTime;
 	}
 	
-	public LocalDateTime getStartTime() {
-		if (!subtasks.isEmpty()) {
-			List<Subtask> sudSort = subtasks.stream()
-					.filter(subtask -> subtask.getStartTime() != null)
-					.collect(Collectors.toList());
-			
-			if (!sudSort.isEmpty()) {
-				return sudSort.get(0).getStartTime();
-			} else {
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
-	
-	public int getDuration() {
-		if (!subtasks.isEmpty()) {
-			List<Subtask> sudSort = subtasks.stream()
-					.filter(subtask -> subtask.getStartTime() != null)
-					.collect(Collectors.toList());
-			
-			if (!sudSort.isEmpty()) {
-				int duration = 0;
-				
-				for (int i = 0; i < sudSort.size(); i++) {
-					duration += sudSort.get(i).getDuration();
-				}
-				
-				return duration;
-			} else {
-				return 0;
-			}
-		} else {
-			return 0;
-		}
-	}
-	
-	public ArrayList<Subtask> getSubtasks() {
+	public List<Subtask> getSubtasks() {
 		return subtasks;
-	}
-	
-	public void setSubtasks(ArrayList<Subtask> subtasks) {
-		this.subtasks = subtasks;
 	}
 	
 	public Type getType() {
@@ -111,6 +74,6 @@ public class Epic extends Task {
 	@Override
 	public String toString() {
 		return getId() + "," + getType() + "," + getName() + "," + getStatus() + "," + getDescription()
-				+ "," + "," + getStartTime();
+				+ "," + getStartTime();
 	}
 }

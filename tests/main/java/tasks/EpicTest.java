@@ -3,8 +3,7 @@ package main.java.tasks;
 import main.java.managers.InMemoryTaskManager;
 import main.java.managers.TaskManager;
 import main.java.models.Status;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,64 +14,82 @@ class EpicTest {
 	private static Subtask sub1;
 	private static Subtask sub2;
 	
-	private static int ender = 1;
+	private static int epicId;
+	private static int subId1;
+	private static int subId2;
 	
-	@BeforeAll
-	public static void start() {
+	@BeforeEach
+	public void initialManager() {
 		epic = new Epic("epicName", "descriptionEpic");
-		
 		manager.addEpic(epic);
+		epicId = epic.getId();
 		
-		sub1 = new Subtask("sub1", "descriptionSub1", epic.getId());
-		sub2 = new Subtask("sub2", "descriptionSub2", epic.getId());
-		
+		sub1 = new Subtask("sub1", "descriptionSub1", epicId);
 		manager.addSubtask(sub1);
+		subId1 = sub1.getId();
+		
+		sub2 = new Subtask("sub2", "descriptionSub2", epicId);
 		manager.addSubtask(sub2);
-	}
-	@AfterAll
-	public static void emptyTaskListTest() {
-		manager.deleteSubtasks();
-		
-		assertEquals(Status.NEW, epic.getStatus());
-		
-		manager.deleteEpics();
+		subId2 = sub2.getId();
 	}
 	
 	@Test
-	public void subtasksStatusNew() {
-		updateSubtask(Status.NEW, Status.NEW);
+	public void subtasksStatusNewTest() {
+		assertNotNull(manager.getEpic(epicId), "Эпик не найден.");
+		assertNotNull(manager.getSubtask(subId1), "Подзадача 1 не найдена.");
+		assertNotNull(manager.getSubtask(subId2), "Подзадача 2 не найдена.");
 		
-		assertEquals(Status.NEW, epic.getStatus());
+		sub1.setStatus(Status.NEW);
+		manager.updateSubtask(sub1);
+		
+		sub2.setStatus(Status.NEW);
+		manager.updateSubtask(sub2);
+		
+		assertEquals(Status.NEW, epic.getStatus(), "Статус не идентичен.");
 	}
 	
 	@Test
-	public void subtasksStatusDone() {
-		updateSubtask(Status.DONE, Status.DONE);
+	public void subtasksStatusDoneTest() {
+		assertNotNull(manager.getEpic(epicId), "Эпик не найден.");
+		assertNotNull(manager.getSubtask(subId1), "Подзадача 1 не найдена.");
+		assertNotNull(manager.getSubtask(subId2), "Подзадача 2 не найдена.");
 		
-		assertEquals(Status.DONE, epic.getStatus());
+		sub1.setStatus(Status.DONE);
+		manager.updateSubtask(sub1);
+		
+		sub2.setStatus(Status.DONE);
+		manager.updateSubtask(sub2);
+		
+		assertEquals(Status.DONE, epic.getStatus(), "Статус не идентичен.");
 	}
 	
 	@Test
-	public void subtasksStatusDoneAndNew() {
-		updateSubtask(Status.DONE, Status.NEW);
+	public void subtasksStatusDoneAndNewTest() {
+		assertNotNull(manager.getEpic(epicId), "Эпик не найден.");
+		assertNotNull(manager.getSubtask(subId1), "Подзадача 1 не найдена.");
+		assertNotNull(manager.getSubtask(subId2), "Подзадача 2 не найдена.");
 		
-		assertEquals(Status.IN_PROGRESS, epic.getStatus());
+		sub1.setStatus(Status.DONE);
+		manager.updateSubtask(sub1);
+		
+		sub2.setStatus(Status.NEW);
+		manager.updateSubtask(sub2);
+		
+		assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Статус не идентичен.");
 	}
 	
 	@Test
-	public void subtasksStatusInProgress() {
-		updateSubtask(Status.IN_PROGRESS, Status.IN_PROGRESS);
+	public void subtasksStatusInProgressTest() {
+		assertNotNull(manager.getEpic(epicId), "Эпик не найден.");
+		assertNotNull(manager.getSubtask(subId1), "Подзадача 1 не найдена.");
+		assertNotNull(manager.getSubtask(subId2), "Подзадача 2 не найдена.");
 		
-		assertEquals(Status.IN_PROGRESS, epic.getStatus());
-	}
-	
-	public static void updateSubtask(Status status1, Status status2) {
-		manager.updateSubtask(new Subtask("sub1_" + ender, "descriptionSub1_" + ender,
-				status1, epic.getId()), sub1.getId());
+		sub1.setStatus(Status.IN_PROGRESS);
+		manager.updateSubtask(sub1);
 		
-		manager.updateSubtask(new Subtask("sub2_" + ender, "descriptionSub2_" + ender,
-				status2, epic.getId()), sub2.getId());
+		sub2.setStatus(Status.IN_PROGRESS);
+		manager.updateSubtask(sub2);
 		
-		ender += 1;
+		assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Статус не идентичен.");
 	}
 }

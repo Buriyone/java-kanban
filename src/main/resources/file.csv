@@ -1,7 +1,8 @@
-id,type,name,status,description,epic,date
-1,TASK,name,NEW,description,,null
-2,EPIC,name,NEW,description,,2023-06-09T04:08:09.473294200
-3,SUBTASK,name,NEW,description,2,2023-06-09T04:08:09.473294200
-4,SUBTASK,name,NEW,description,2,null
-5,SUBTASK,name,NEW,description,2,2023-06-09T04:23:09.473294200
+id,type,name,status,description,date,epic
+1,TASK,name,NEW,description,null
+2,EPIC,name,NEW,description,2023-06-12T07:30:56.004924100
+3,SUBTASK,name,NEW,description,2023-06-12T07:30:56.004924100,2
+4,SUBTASK,name,NEW,description,null,2
+5,SUBTASK,name,NEW,description,2023-06-12T07:45:56.004924100,2
+6,SUBTASK,name,NEW,description,2023-06-12T08:00:56.004924100,2
 

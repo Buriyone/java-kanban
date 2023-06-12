@@ -1,96 +1,100 @@
 package main.java.managers;
 
+import main.java.tasks.Epic;
+import main.java.tasks.Subtask;
 import main.java.tasks.Task;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class HistoryManagerTest {
-	private static final HistoryManager manager = new InMemoryHistoryManager();
+	private static TaskManager manager;
+	private static int taskId;
+	private static int epicId;
+	private static int subId;
 	
-	private static int ender = 1;
-	
-	private static int id = 1;
+	@BeforeEach
+	public void initialManager() {
+		manager = new InMemoryTaskManager();
+		
+		manager.addTask(new Task("taskName", "taskDescription"));
+		taskId = manager.getTasks().get(0).getId();
+		
+		manager.addEpic(new Epic("epicName", "epicDescription"));
+		epicId = manager.getEpics().get(0).getId();
+		
+		manager.addSubtask(new Subtask("subName", "subDescription", epicId));
+		subId = manager.getSubtasks().get(0).getId();
+	}
 	
 	
 	@Test
-	public void add() {
-		Task task1 = createTask();
+	public void addToHistoryTest() {
+		assertTrue(manager.getHistory().isEmpty(), "История не пуста.");
 		
-		assertEquals(0, manager.getHistory().size(), "История не пуста.");
+		manager.getTask(taskId);
+		manager.getTask(taskId);
 		
-		manager.add(task1);
-		
-		assertEquals(1, manager.getHistory().size(), "Задача не была добавлена.");
-		assertEquals(task1, manager.getHistory().get(0), "Задачи отличаются.");
+		assertFalse(manager.getHistory().isEmpty(), "Задача не была добавлена в историю.");
+		assertEquals(1, manager.getHistory().size(), "Происходит дублирование задачи в истории.");
+		assertEquals(manager.getTask(taskId), manager.getHistory().get(0), "Задача в истории отличается.");
 	}
 	
 	@Test
-	public void remove() {
-		Task task1 = createTask();
-		Task task2 = createTask();
+	public void removeFromHistoryTest() {
+		assertTrue(manager.getHistory().isEmpty(), "История не пуста.");
 		
-		assertEquals(0, manager.getHistory().size(), "История не пуста.");
+		manager.getTask(taskId);
+		manager.getEpic(epicId);
 		
-		manager.add(task1);
-		manager.add(task2);
+		assertFalse(manager.getHistory().isEmpty(), "Задачи не были добавлены в историю.");
 		
-		assertEquals(2, manager.getHistory().size(), "Задачи не были добавлены.");
+		manager.deleteTask(taskId);
 		
-		manager.remove(task1.getId());
-		
-		assertEquals(1, manager.getHistory().size(), "Задача не была удалена.");
-		assertEquals(task2, manager.getHistory().get(0), "Удалена не та задача.");
+		assertEquals(1, manager.getHistory().size(), "Задача не была удалена из истории.");
+		assertEquals(manager.getEpic(epicId), manager.getHistory().get(0), "Удалена не та задача в истории.");
 	}
 	
 	@Test
-	public void getHistory() {
-		Task task1 = createTask();
-		Task task2 = createTask();
-		Task task3 = createTask();
+	public void getHistoryTest() {
+		assertNotNull(manager.getHistory(), "История не найдена.");
+		assertTrue(manager.getHistory().isEmpty(), "История не пуста.");
 		
-		ArrayList<Task> referenceHistory = new ArrayList<>();
+		List<Task> tempHistory = new ArrayList<>();
+		tempHistory.add(manager.getTask(taskId));
+		tempHistory.add(manager.getSubtask(subId));
+		tempHistory.add(manager.getEpic(epicId));
 		
-		referenceHistory.add(task1);
-		referenceHistory.add(task2);
-		referenceHistory.add(task3);
+		String expectHistory = tempHistory.toString();
 		
-		assertEquals(0, manager.getHistory().size(), "История не пуста.");
+		assertEquals(3, manager.getHistory().size(), "Количество задач в истории не совпадает.");
+		assertEquals(expectHistory, manager.getHistory().toString(), "История не идентична.");
 		
-		manager.add(task1);
-		manager.add(task2);
-		manager.add(task3);
+		tempHistory.remove(1);
+		manager.deleteSubtask(subId);
+		expectHistory = tempHistory.toString();
 		
-		assertEquals(3, manager.getHistory().size(), "Задачи не были добавлены.");
-		assertEquals(referenceHistory, manager.getHistory(), "История отличается.");
-	}
-	
-	@AfterEach
-	public void managerCleaner(){
-		while (true) {
-			if (!manager.getHistory().isEmpty() && id != 1) {
-				manager.remove(id);
-				
-				id -= 1;
-			} else if (!manager.getHistory().isEmpty() && id == 1) {
-				manager.remove(id);
-			} else {
-				break;
-			}
-		}
-	}
-	
-	private static Task createTask() {
-		Task task = new Task("Task_"+ ender, "descriptionTask_" + ender);
+		assertEquals(2, manager.getHistory().size(),
+				"После удаления из середины - количество задач в истории не совпадает.");
+		assertEquals(expectHistory, manager.getHistory().toString(),
+				"После удаления из середины - история не идентична.");
 		
-		task.setId(id);
+		tempHistory.remove(1);
+		manager.deleteEpic(epicId);
+		expectHistory = tempHistory.toString();
 		
-		ender += 1;
-		id += 1;
+		assertEquals(1, manager.getHistory().size(),
+				"После удаления из конца - количество задач в истории не совпадает.");
+		assertEquals(expectHistory, manager.getHistory().toString(),
+				"После удаления из конца - история не идентична.");
 		
-		return task;
+		manager.getTask(taskId);
+		manager.getTask(taskId);
+		
+		assertEquals(expectHistory, manager.getHistory().toString(), "Дублирование влияет на историю.");
 	}
 }

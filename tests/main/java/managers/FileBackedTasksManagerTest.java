@@ -1,82 +1,108 @@
 package main.java.managers;
 
+import main.java.models.Status;
 import main.java.tasks.Epic;
 import main.java.tasks.Subtask;
 import main.java.tasks.Task;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.nio.file.Path;
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>{
-	File testFile = new File("tests/main/resources/testFile.csv");
+	private static File file;
 	
 	@BeforeEach
 	public void initialManager() {
-		manager = new FileBackedTasksManager(Path.of(testFile.getPath()));
-	}
-	
-	@AfterEach
-	public void cleanerManager() {
-		manager.deleteTasks();
-		manager.deleteEpics();
+		try {
+			file = File.createTempFile("tempFile", ".csv");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		manager = new FileBackedTasksManager(file.toPath());
 		
-		taskEnder = 1;
-		epicEnder = 1;
-		subtaskEnder = 1;
+		task = new Task("taskName", "taskDescription");
+		manager.addTask(task);
+		taskId = task.getId();
+		
+		epic = new Epic("epicName", "epicDescription");
+		manager.addEpic(epic);
+		epicId = epic.getId();
+		
+		sub1 = new Subtask("subName", "subDescription", epicId);
+		manager.addSubtask(sub1);
+		subId1 = sub1.getId();
+		
+		sub2 = new Subtask("subName2", "subDescription2", epicId);
+		manager.addSubtask(sub2);
+		subId2 = sub2.getId();
 	}
 	
 	@Test
 	public void loadFromFile(){
-		TaskManager testManager_1 = FileBackedTasksManager.loadFromFile(testFile);
+		assertNotNull(manager.getTask(taskId), "Задача не найдена.");
+		assertNotNull(manager.getEpic(epicId), "Эпик не найден.");
+		assertNotNull(manager.getSubtask(subId1), "Подзадача 1 не найдена.");
+		assertNotNull(manager.getSubtask(subId2), "Подзадача 2 не найдена.");
+		assertNotNull(manager.getTasks(), "Список задач не найден.");
+		assertFalse(manager.getTasks().isEmpty(), "Список задач пуст.");
+		assertNotNull(manager.getEpics(), "Список эпиков не найден.");
+		assertFalse(manager.getEpics().isEmpty(), "Список эпиков пуст.");
+		assertNotNull(manager.getSubtasks(), "Список подзадач не найден.");
+		assertFalse(manager.getSubtasks().isEmpty(), "Список подзадач пуст");
+		assertNotNull(manager.getEpicSubtasks(epicId), "подзадачи эпика не найдены.");
+		assertFalse(manager.getEpicSubtasks(epicId).isEmpty(), "Список подзадач эпика пуст.");
+		assertNotNull(manager.getPrioritizedTasks(), "Приоритетный список не найден.");
+		assertFalse(manager.getPrioritizedTasks().isEmpty(), "Приоритетный список пуст.");
+		assertNotNull(manager.getHistory(), "История не найдена.");
+		assertFalse(manager.getHistory().isEmpty(), "История пуста.");
 		
-		assertEquals(manager.getTasks(), testManager_1.getTasks(), "Список задач не пуст.");
-		assertEquals(manager.getEpics(), testManager_1.getEpics(), "Список эпиков не пуст.");
-		assertEquals(manager.getSubtasks(), testManager_1.getSubtasks(), "Список подзадач не пуст.");
-		assertEquals(manager.getHistory(), testManager_1.getHistory(), "История не пуста.");
+		task.setStartTime(LocalDateTime.now());
+		task.setStatus(Status.IN_PROGRESS);
+		manager.updateTask(task);
 		
-		Task task = createTask();
-		Epic epic = createEpic();
+		sub1.setStatus(Status.DONE);
+		sub1.setName("newName");
+		manager.updateSubtask(sub1);
 		
-		manager.addTask(task);
-		manager.addEpic(epic);
+		sub2.setStartTime(LocalDateTime.now());
+		sub2.setDescription("newDescription");
+		manager.updateSubtask(sub2);
 		
-		int taskId = task.getId();
-		int epicId = epic.getId();
+		TaskManager testManager = FileBackedTasksManager.loadFromFile(file);
 		
-		TaskManager testManager_2 = FileBackedTasksManager.loadFromFile(testFile);
+		assertNotNull(testManager.getTask(taskId), "Задача не восстановлена.");
+		assertNotNull(testManager.getEpic(epicId), "Эпик не восстановлена.");
+		assertNotNull(testManager.getSubtask(subId1), "Подзадача 1 не восстановлена.");
+		assertNotNull(testManager.getSubtask(subId2), "Подзадача 2 не восстановлена.");
+		assertNotNull(testManager.getTasks(), "Список задач не восстановлен.");
+		assertFalse(testManager.getTasks().isEmpty(), "Список задач пуст.");
+		assertNotNull(testManager.getEpics(), "Список эпиков не восстановлен.");
+		assertFalse(testManager.getEpics().isEmpty(), "Список эпиков пуст.");
+		assertNotNull(testManager.getSubtasks(), "Список подзадач не восстановлен.");
+		assertFalse(testManager.getSubtasks().isEmpty(), "Список подзадач пуст");
+		assertNotNull(testManager.getEpicSubtasks(epicId), "подзадачи эпика не восстановлены.");
+		assertFalse(testManager.getEpicSubtasks(epicId).isEmpty(), "Список подзадач эпика пуст.");
+		assertNotNull(testManager.getPrioritizedTasks(), "Приоритетный список не восстановлен.");
+		assertFalse(testManager.getPrioritizedTasks().isEmpty(), "Приоритетный список пуст.");
+		assertNotNull(testManager.getHistory(), "История не восстановлена.");
+		assertFalse(testManager.getHistory().isEmpty(), "История пуста.");
 		
-		assertFalse(testManager_2.getTasks().isEmpty(), "Задача не была восстановлена.");
-		assertFalse(testManager_2.getEpics().isEmpty(), "Эпик не был восстановлен.");
-		assertEquals(task, testManager_2.getTasks().get(0), "Задачи отличаются.");
-		assertEquals(epic, testManager_2.getEpics().get(0), "Эпики отличаются.");
-		assertTrue(testManager_2.getHistory().isEmpty(), "История не пуста.");
-		
-		Subtask sub = createSubtask(epicId);
-		
-		manager.addSubtask(sub);
-		
-		int subId = sub.getId();
-		
-		manager.getTask(taskId);
-		manager.getEpic(epicId);
-		manager.getSubtask(subId);
-		
-		TaskManager testManager_3 = FileBackedTasksManager.loadFromFile(testFile);
-		
-		assertFalse(testManager_3.getTasks().isEmpty(), "Задача не была восстановлена.");
-		assertFalse(testManager_3.getEpics().isEmpty(), "Эпик не был восстановлен.");
-		assertFalse(testManager_3.getSubtasks().isEmpty(), "подзадача не была восстановлена.");
-		assertFalse(testManager_3.getHistory().isEmpty(), "История не была восстановлена.");
-		assertEquals(task, testManager_3.getTasks().get(0), "Задачи отличаются.");
-		assertEquals(epic, testManager_3.getEpics().get(0), "Эпики отличаются.");
-		assertEquals(sub, testManager_3.getSubtasks().get(0), "Подзадачи отличаются.");
-		assertEquals(manager.getEpicSubtasks(epicId), testManager_3.getEpicSubtasks(epicId),
-				"Подзадачи эпиков отличаются.");
-		assertEquals(manager.getHistory(), testManager_3.getHistory(), "Истории отличаются.");
+		assertEquals(manager.getHistory().toString(), testManager.getHistory().toString(),
+				"История не идентична");
+		assertEquals(manager.getTask(taskId), testManager.getTask(taskId), "Задача не идентична.");
+		assertEquals(manager.getEpic(epicId), testManager.getEpic(epicId), "Эпик не идентичен.");
+		assertEquals(manager.getSubtask(subId1), testManager.getSubtask(subId1), "Подзадача 1 не идентична.");
+		assertEquals(manager.getSubtask(subId2), testManager.getSubtask(subId2), "Подзадача 2 не идентична.");
+		assertEquals(manager.getTasks(), testManager.getTasks(), "Списки задач не идентичны.");
+		assertEquals(manager.getEpics(), testManager.getEpics(), "Списки эпиков не идентичны.");
+		assertEquals(manager.getSubtasks(), testManager.getSubtasks(), "Списки подзадач не идентичны.");
+		assertEquals(manager.getEpicSubtasks(epicId), testManager.getEpicSubtasks(epicId),
+				"Списки подзадач эпика не идентичны.");
+		assertEquals(manager.getPrioritizedTasks().toString(), testManager.getPrioritizedTasks().toString(),
+				"Списки приоритетных задач не идентичны.");
 	}
 }
