@@ -42,7 +42,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
 	}
 	
 	@Test
-	public void loadFromFile(){
+	public void loadFromFileTest(){
 		assertNotNull(manager.getTask(taskId), "Задача не найдена.");
 		assertNotNull(manager.getEpic(epicId), "Эпик не найден.");
 		assertNotNull(manager.getSubtask(subId1), "Подзадача 1 не найдена.");
