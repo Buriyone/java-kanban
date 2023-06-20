@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-	private final Path path;
+	protected final Path path;
 	
 	public FileBackedTasksManager(Path path) {
 		this.path = path;
@@ -180,6 +180,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 				if (task != null) {
 					Type type = task.getType();
 					Status status = task.getStatus();
+					manager.id = task.getId();
 					
 					if (type.equals(Type.EPIC)) {
 						manager.addEpic((Epic) task);
@@ -228,7 +229,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 		return manager;
 	}
 	
-	private static int getMaxId(int id1, int id2) {
+	protected static int getMaxId(int id1, int id2) {
 		return Integer.max(id1, id2);
 	}
 	

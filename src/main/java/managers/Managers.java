@@ -8,6 +8,10 @@ public class Managers {
     }
 
     public static TaskManager getDefault() {
+        return HttpTaskManager.loadFromServer("http://localhost:8078/");
+    }
+    
+    public static TaskManager getReserved() {
         return FileBackedTasksManager.loadFromFile(Path.of("src/main/resources/file.csv").toFile());
     }
 }

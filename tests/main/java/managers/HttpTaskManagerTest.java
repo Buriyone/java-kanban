@@ -1,28 +1,29 @@
 package main.java.managers;
 
 import main.java.models.Status;
+import main.java.servers.KVServer;
 import main.java.tasks.Epic;
 import main.java.tasks.Subtask;
 import main.java.tasks.Task;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>{
-	private static File file;
-	
+class HttpTaskManagerTest extends TaskManagerTest<FileBackedTasksManager>{
+	private static String url;
+	private static KVServer server;
 	@BeforeEach
-	public void initialManager() {
-		try {
-			file = File.createTempFile("tempFile", ".csv");
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-		manager = new FileBackedTasksManager(file.toPath());
+	public void initialManager() throws IOException {
+		url = "http://localhost:8078/";
+		server = new KVServer();
+		server.start();
+		
+		manager = HttpTaskManager.loadFromServer(url);
 		
 		task = new Task("taskName", "taskDescription");
 		manager.addTask(task);
@@ -41,8 +42,13 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
 		subId2 = sub2.getId();
 	}
 	
+	@AfterEach
+	public void stopServer() {
+		server.stop();
+	}
+	
 	@Test
-	public void loadFromFileTest(){
+	public void loadFromServerTest(){
 		assertNotNull(manager.getTask(taskId), "Задача не найдена.");
 		assertNotNull(manager.getEpic(epicId), "Эпик не найден.");
 		assertNotNull(manager.getSubtask(subId1), "Подзадача 1 не найдена.");
@@ -72,7 +78,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
 		sub2.setDescription("newDescription");
 		manager.updateSubtask(sub2);
 		
-		TaskManager testManager = FileBackedTasksManager.loadFromFile(file);
+		TaskManager testManager = HttpTaskManager.loadFromServer(url);
 		
 		assertNotNull(testManager.getTask(taskId), "Задача не восстановлена.");
 		assertNotNull(testManager.getEpic(epicId), "Эпик не восстановлен.");

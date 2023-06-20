@@ -1,8 +1,7 @@
 id,type,name,status,description,date,epic
-1,TASK,name,NEW,description,null
-2,EPIC,name,NEW,description,2023-06-12T07:30:56.004924100
-3,SUBTASK,name,NEW,description,2023-06-12T07:30:56.004924100,2
-4,SUBTASK,name,NEW,description,null,2
-5,SUBTASK,name,NEW,description,2023-06-12T07:45:56.004924100,2
-6,SUBTASK,name,NEW,description,2023-06-12T08:00:56.004924100,2
+1,TASK,taskName,IN_PROGRESS,taskDescription,2023-06-20T04:40:34.676789300
+2,EPIC,epicName,IN_PROGRESS,epicDescription,2023-06-20T04:40:34.685757500
+3,SUBTASK,newName,DONE,subDescription,null,2
+4,SUBTASK,subName2,NEW,newDescription,2023-06-20T04:40:34.685757500,2
 
+1,2,3,4
