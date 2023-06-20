@@ -24,11 +24,12 @@ public class HttpTaskServer {
 	private static final GsonBuilder gsonBuilder = new GsonBuilder();
 	private static final Gson gson = gsonBuilder.serializeNulls().create();
 	
-	private static final TaskManager manager = Managers.getDefault();
+	private static TaskManager manager;
 	private static  HttpServer server;
 	
 	public void start() throws IOException {
 		server = HttpServer.create();
+		manager = Managers.getDefault();
 		server.bind(new InetSocketAddress(PORT), 0);
 		server.createContext("/tasks/task/", new TaskHandler());
 		server.createContext("/tasks/epic/", new EpicHandler());
@@ -48,6 +49,7 @@ public class HttpTaskServer {
 	private static class TaskHandler implements HttpHandler {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
+			manager = Managers.getDefault();
 			String method = exchange.getRequestMethod();
 			String query = exchange.getRequestURI().getQuery();
 			
@@ -78,6 +80,7 @@ public class HttpTaskServer {
 	private static class EpicHandler implements HttpHandler {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
+			manager = Managers.getDefault();
 			String method = exchange.getRequestMethod();
 			String query = exchange.getRequestURI().getQuery();
 			
@@ -108,6 +111,7 @@ public class HttpTaskServer {
 	private static class SubtaskHandler implements HttpHandler {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
+			manager = Managers.getDefault();
 			String method = exchange.getRequestMethod();
 			String query = exchange.getRequestURI().getQuery();
 			
@@ -138,6 +142,7 @@ public class HttpTaskServer {
 	private static class EpicSubtasksHandler implements HttpHandler {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
+			manager = Managers.getDefault();
 			String method = exchange.getRequestMethod();
 			String query = exchange.getRequestURI().getQuery();
 			
@@ -156,7 +161,9 @@ public class HttpTaskServer {
 	private static class HistoryHandler implements HttpHandler {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
+			manager = Managers.getDefault();
 			String method = exchange.getRequestMethod();
+			
 			
 			if (method.equals("GET")) {
 				if (manager.getHistory().isEmpty()) {
@@ -173,6 +180,7 @@ public class HttpTaskServer {
 	private static class PrioritizedTasksHandler implements HttpHandler {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
+			manager = Managers.getDefault();
 			String method = exchange.getRequestMethod();
 			
 			if (method.equals("GET")) {

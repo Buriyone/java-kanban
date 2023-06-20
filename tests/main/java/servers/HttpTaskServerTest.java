@@ -1,6 +1,8 @@
 package main.java.servers;
 
 import com.google.gson.*;
+import main.java.managers.Managers;
+import main.java.managers.TaskManager;
 import main.java.tasks.Epic;
 import main.java.tasks.Subtask;
 import main.java.tasks.Task;
@@ -23,6 +25,7 @@ class HttpTaskServerTest {
 	private static HttpTaskServer taskServer;
 	
 	private static HttpClient client;
+	private static TaskManager manager;
 	
 	private static Task task;
 	private static Epic epic;
@@ -91,6 +94,8 @@ class HttpTaskServerTest {
 		subtask = gson.fromJson(jsonObjectSubtask, Subtask.class);
 		subtaskId = subtask.getId();
 		epic.getSubtasks().add(subtask);
+		
+		manager = Managers.getDefault();
 	}
 	
 	@AfterEach
@@ -123,10 +128,14 @@ class HttpTaskServerTest {
 		
 		assertNotNull(response.body(), "Тело запроса не было возвращено.");
 		assertEquals(expectedJson, response.body(), "Тело запроса отличается.");
+		
+		assertEquals(response.body(), gson.toJson(manager.getTasks()), "Задачи в менеджере отличаются.");
 	}
 	
 	@Test
 	public void deleteTasksTest() throws IOException, InterruptedException {
+		assertFalse(manager.getTasks().isEmpty(), "Менеджер пуст.");
+		
 		URI url = URI.create("http://localhost:8080/tasks/task/");
 		HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -144,6 +153,10 @@ class HttpTaskServerTest {
 		
 		assertNotNull(response2.body(), "Тело запроса не было возвращено.");
 		assertEquals(expectedJson2, response2.body(), "Тело запроса отличается.");
+		
+		manager = Managers.getDefault();
+		
+		assertTrue(manager.getTasks().isEmpty(), "Задачи не были удалены.");
 	}
 	
 	@Test
@@ -161,6 +174,8 @@ class HttpTaskServerTest {
 		
 		assertNotNull(response.body(), "Тело запроса не было возвращено.");
 		assertEquals(task, actualTask, "Тело запроса отличается.");
+		
+		assertEquals(actualTask, manager.getTask(actualTask.getId()), "Задачи отличаются.");
 	}
 	
 	@Test
@@ -183,6 +198,10 @@ class HttpTaskServerTest {
 		task.setId(task1.getId());
 		
 		assertEquals(task, task1, "Задачи не идентичны.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(task1, manager.getTask(task1.getId()), "Задача не была добавлена.");
 	}
 	
 	@Test
@@ -211,6 +230,10 @@ class HttpTaskServerTest {
 		Task actualTask = gson.fromJson(jsonObject, Task.class);
 		
 		assertEquals(task, actualTask, "Задачи отличаются.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(actualTask, manager.getTask(actualTask.getId()), "Задачи не идентичны.");
 	}
 	
 	@Test
@@ -232,6 +255,10 @@ class HttpTaskServerTest {
 		String expectedJson = gson.toJson(expectedList);
 		
 		assertEquals(expectedJson, response2.body(), "Списки не идентичны.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(response2.body(), gson.toJson(manager.getTasks()), "Списки задач отличаются.");
 	}
 	
 	@Test
@@ -246,10 +273,14 @@ class HttpTaskServerTest {
 		
 		assertNotNull(response.body(), "Тело запроса не было возвращено.");
 		assertEquals(expectedJson, response.body(), "Тело запроса отличается.");
+		
+		assertEquals(response.body(), gson.toJson(manager.getEpics()), "Эпики в менеджере отличаются.");
 	}
 	
 	@Test
 	public void deleteEpicsTest() throws IOException, InterruptedException {
+		assertFalse(manager.getEpics().isEmpty(), "Список эпиков пуст.");
+		
 		URI url = URI.create("http://localhost:8080/tasks/epic/");
 		HttpRequest request = HttpRequest.newBuilder().uri(url).DELETE().build();
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -267,6 +298,10 @@ class HttpTaskServerTest {
 		
 		assertNotNull(response2.body(), "Тело запроса не было возвращено.");
 		assertEquals(expectedJson2, response2.body(), "Тело запроса отличается.");
+		
+		manager = Managers.getDefault();
+		
+		assertTrue(manager.getEpics().isEmpty(), "Эпики не были удалены.");
 	}
 	
 	@Test
@@ -286,12 +321,16 @@ class HttpTaskServerTest {
 		
 		assertNotNull(response.body(), "Тело запроса не было возвращено.");
 		assertEquals(epic, actualEpic, "Тело запроса отличается.");
+		
+		assertEquals(actualEpic, manager.getEpic(actualEpic.getId()), "Эпики отличаются.");
 	}
 	
 	@Test
 	public void addEpicTest() throws IOException, InterruptedException {
 		URI url = URI.create("http://localhost:8080/tasks/epic/");
 		epic.setId(0);
+		epic.getSubtasks().clear();
+		epic.setName("newTestEpic");
 		String json = gson.toJson(epic);
 		final HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers.ofString(json);
 		HttpRequest request = HttpRequest.newBuilder().uri(url).POST(body).build();
@@ -308,6 +347,10 @@ class HttpTaskServerTest {
 		epic.setId(epic1.getId());
 		
 		assertEquals(epic, epic1, "Эпики не идентичны.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(epic1, manager.getEpic(epic1.getId()), "Эпик не был добавлен.");
 	}
 	
 	@Test
@@ -336,6 +379,10 @@ class HttpTaskServerTest {
 		Epic actualEpic = gson.fromJson(jsonObject, Epic.class);
 		
 		assertEquals(epic, actualEpic, "Эпики отличаются.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(actualEpic, manager.getEpic(actualEpic.getId()), "Эпики не идентичны.");
 	}
 	
 	@Test
@@ -357,6 +404,10 @@ class HttpTaskServerTest {
 		String expectedJson = gson.toJson(expectedList);
 		
 		assertEquals(expectedJson, response2.body(), "Списки не идентичны.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(response2.body(), gson.toJson(manager.getEpics()), "Списки эпиков отличаются.");
 	}
 	
 	@Test
@@ -371,6 +422,9 @@ class HttpTaskServerTest {
 		
 		assertNotNull(response.body(), "Тело запроса не было возвращено.");
 		assertEquals(expectedJson, response.body(), "Тело запроса отличается.");
+		
+		assertEquals(response.body(), gson.toJson(manager.getEpicSubtasks(epicId)),
+				"Списки подзадач отличаются");
 	}
 	
 	@Test
@@ -385,6 +439,8 @@ class HttpTaskServerTest {
 		
 		assertNotNull(response.body(), "Тело запроса не было возвращено.");
 		assertEquals(expectedJson, response.body(), "Тело запроса отличается.");
+		
+		assertEquals(response.body(), gson.toJson(manager.getSubtasks()), "Подзадачи в менеджере отличаются.");
 	}
 	
 	@Test
@@ -406,6 +462,10 @@ class HttpTaskServerTest {
 		
 		assertNotNull(response2.body(), "Тело запроса не было возвращено.");
 		assertEquals(expectedJson2, response2.body(), "Тело запроса отличается.");
+		
+		manager = Managers.getDefault();
+		
+		assertTrue(manager.getSubtasks().isEmpty(), "Подзадачи не были удалены.");
 	}
 	
 	@Test
@@ -423,6 +483,8 @@ class HttpTaskServerTest {
 		
 		assertNotNull(response.body(), "Тело запроса не было возвращено.");
 		assertEquals(subtask, actualSubtask, "Тело запроса отличается.");
+		
+		assertEquals(actualSubtask, manager.getSubtask(actualSubtask.getId()), "Подзадачи отличаются.");
 	}
 	
 	@Test
@@ -445,6 +507,10 @@ class HttpTaskServerTest {
 		subtask.setId(subtask1.getId());
 		
 		assertEquals(subtask, subtask1, "Подзадачи не идентичны.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(subtask1, manager.getSubtask(subtask1.getId()), "Подзадача не была добавлена.");
 	}
 	
 	@Test
@@ -474,6 +540,10 @@ class HttpTaskServerTest {
 		Subtask actualSubtask = gson.fromJson(jsonObject, Subtask.class);
 		
 		assertEquals(subtask, actualSubtask, "Подзадачи отличаются.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(actualSubtask, manager.getSubtask(actualSubtask.getId()), "Подзадачи не идентичны.");
 	}
 	
 	@Test
@@ -495,6 +565,10 @@ class HttpTaskServerTest {
 		String expectedJson = gson.toJson(expectedList);
 		
 		assertEquals(expectedJson, response2.body(), "Списки не идентичны.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(response2.body(), gson.toJson(manager.getSubtasks()), "Списки подззадач отличаются.");
 	}
 	
 	@Test
@@ -523,6 +597,10 @@ class HttpTaskServerTest {
 		
 		assertNotNull(responseHistory.body(), "Тело запроса не было возвращено.");
 		assertEquals(expectedJson, responseHistory.body(), "Тело запроса отличается.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(responseHistory.body(), gson.toJson(manager.getHistory()), "История отличается");
 	}
 	
 	@Test
@@ -555,5 +633,10 @@ class HttpTaskServerTest {
 		
 		assertNotNull(responsePrioritized.body(), "Тело запроса не было возвращено.");
 		assertEquals(expectedJson, responsePrioritized.body(), "Тело запроса отличается.");
+		
+		manager = Managers.getDefault();
+		
+		assertEquals(responsePrioritized.body(), gson.toJson(manager.getPrioritizedTasks()),
+				"Список приоритетных задач отличается.");
 	}
 }

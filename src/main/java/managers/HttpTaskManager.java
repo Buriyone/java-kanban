@@ -197,7 +197,7 @@ public class HttpTaskManager extends FileBackedTasksManager {
 						manager.getSubtask(id);
 					}
 				}
-				manager.id = managerId;
+				manager.id = managerId + 1;
 				return manager;
 			} else {
 				System.out.println("Данные отсутствуют на сервере, воспользуйтесь резервной копией.");
