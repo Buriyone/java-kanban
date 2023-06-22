@@ -1,10 +1,10 @@
-package main.java.managers;
+package main.java.manager;
 
 import com.google.gson.*;
-import main.java.servers.KVTaskClient;
-import main.java.tasks.Epic;
-import main.java.tasks.Subtask;
-import main.java.tasks.Task;
+import main.java.server.KVTaskClient;
+import main.java.task.Epic;
+import main.java.task.Subtask;
+import main.java.task.Task;
 
 import java.nio.file.Path;
 import java.util.List;

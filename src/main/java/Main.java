@@ -1,7 +1,7 @@
 package main.java;
 
-import main.java.servers.HttpTaskServer;
-import main.java.servers.KVServer;
+import main.java.server.HttpTaskServer;
+import main.java.server.KVServer;
 
 import java.io.IOException;
 

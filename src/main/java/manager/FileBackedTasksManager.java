@@ -1,12 +1,12 @@
-package main.java.managers;
+package main.java.manager;
 
 import main.java.exception.ManagerSaveException;
-import main.java.models.CSVTaskFormat;
-import main.java.models.Status;
-import main.java.models.Type;
-import main.java.tasks.Epic;
-import main.java.tasks.Subtask;
-import main.java.tasks.Task;
+import main.java.auxiliary.CSVTaskFormat;
+import main.java.auxiliary.Status;
+import main.java.model.Type;
+import main.java.task.Epic;
+import main.java.task.Subtask;
+import main.java.task.Task;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

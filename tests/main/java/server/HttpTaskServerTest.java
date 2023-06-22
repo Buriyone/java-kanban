@@ -1,11 +1,11 @@
-package main.java.servers;
+package main.java.server;
 
 import com.google.gson.*;
-import main.java.managers.Managers;
-import main.java.managers.TaskManager;
-import main.java.tasks.Epic;
-import main.java.tasks.Subtask;
-import main.java.tasks.Task;
+import main.java.manager.Managers;
+import main.java.manager.TaskManager;
+import main.java.task.Epic;
+import main.java.task.Subtask;
+import main.java.task.Task;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;

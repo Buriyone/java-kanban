@@ -1,9 +1,9 @@
-package main.java.managers;
+package main.java.manager;
 
 import main.java.exception.TimeValidationException;
-import main.java.tasks.Epic;
-import main.java.tasks.Subtask;
-import main.java.tasks.Task;
+import main.java.task.Epic;
+import main.java.task.Subtask;
+import main.java.task.Task;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

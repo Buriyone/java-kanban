@@ -1,8 +1,8 @@
-package main.java.tasks;
+package main.java.task;
 
-import main.java.managers.InMemoryTaskManager;
-import main.java.managers.TaskManager;
-import main.java.models.Status;
+import main.java.manager.InMemoryTaskManager;
+import main.java.manager.TaskManager;
+import main.java.auxiliary.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

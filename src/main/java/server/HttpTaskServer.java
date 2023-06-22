@@ -1,14 +1,14 @@
-package main.java.servers;
+package main.java.server;
 
 import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import main.java.managers.Managers;
-import main.java.managers.TaskManager;
-import main.java.tasks.Epic;
-import main.java.tasks.Subtask;
-import main.java.tasks.Task;
+import main.java.manager.Managers;
+import main.java.manager.TaskManager;
+import main.java.task.Epic;
+import main.java.task.Subtask;
+import main.java.task.Task;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,14 +29,8 @@ public class HttpTaskServer {
 	
 	public void start() throws IOException {
 		server = HttpServer.create();
-		manager = Managers.getDefault();
 		server.bind(new InetSocketAddress(PORT), 0);
-		server.createContext("/tasks/task/", new TaskHandler());
-		server.createContext("/tasks/epic/", new EpicHandler());
-		server.createContext("/tasks/subtask/", new SubtaskHandler());
-		server.createContext("/tasks/subtask/epic/", new EpicSubtasksHandler());
-		server.createContext("/tasks/history/", new HistoryHandler());
-		server.createContext("/tasks/", new PrioritizedTasksHandler());
+		server.createContext("/tasks/", new Handler());
 		server.start();
 		
 		System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
@@ -46,151 +40,116 @@ public class HttpTaskServer {
 		server.stop(1);
 	}
 	
-	private static class TaskHandler implements HttpHandler {
+	private static class Handler implements HttpHandler {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
 			manager = Managers.getDefault();
 			String method = exchange.getRequestMethod();
 			String query = exchange.getRequestURI().getQuery();
+			String path = exchange.getRequestURI().getPath().substring(7);
 			
-			switch (method) {
-				case "GET":
-					if (query != null) {
-						getTask(exchange);
-					} else {
-						writeResponse(200, gson.toJson(manager.getTasks()), exchange);
+			switch (path) {
+				case "task/":
+					switch (method) {
+						case "GET":
+							if (query != null) {
+								getTask(exchange);
+							} else {
+								writeResponse(200, gson.toJson(manager.getTasks()), exchange);
+							}
+							break;
+						case "POST":
+							addOrUpdateTask(exchange);
+							break;
+						case "DELETE":
+							if (query != null) {
+								deleteTask(exchange);
+							} else {
+								deleteTasks(exchange);
+							}
+							break;
+						default:
+							writeResponse(400, gson.toJson("Некорректный метод."), exchange);
 					}
 					break;
-				case "POST":
-					addOrUpdateTask(exchange);
+				case "epic/":
+					switch (method) {
+						case "GET":
+							if (query != null) {
+								getEpic(exchange);
+							} else {
+								writeResponse(200, gson.toJson(manager.getEpics()), exchange);
+							}
+							break;
+						case "POST":
+							addOrUpdateEpic(exchange);
+							break;
+						case "DELETE":
+							if (query != null) {
+								deleteEpic(exchange);
+							} else {
+								deleteEpics(exchange);
+							}
+							break;
+						default:
+							writeResponse(400, gson.toJson("Некорректный метод."), exchange);
+					}
 					break;
-				case "DELETE":
-					if (query != null) {
-						deleteTask(exchange);
+				case "subtask/":
+					switch (method) {
+						case "GET":
+							if (query != null) {
+								getSubtask(exchange);
+							} else {
+								writeResponse(200, gson.toJson(manager.getSubtasks()), exchange);
+							}
+							break;
+						case "POST":
+							addOrUpdateSubtask(exchange);
+							break;
+						case "DELETE":
+							if (query != null) {
+								deleteSubtask(exchange);
+							} else {
+								deleteSubtasks(exchange);
+							}
+							break;
+						default:
+							writeResponse(400, gson.toJson("Некорректный метод."), exchange);
+					}
+					break;
+				case "subtask/epic/":
+					if (method.equals("GET")) {
+						if (query != null) {
+							getEpicSubtasks(exchange);
+						} else {
+							writeResponse(400, gson.toJson("Некорректный запрос"), exchange);
+						}
 					} else {
-						deleteTasks(exchange);
+						writeResponse(400, gson.toJson("Некорректный метод."), exchange);
+					}
+					break;
+				case "history/":
+					if (method.equals("GET")) {
+						if (manager.getHistory().isEmpty()) {
+							writeResponse(200, gson.toJson("История пуста."), exchange);
+						} else {
+							writeResponse(200, gson.toJson(manager.getHistory()), exchange);
+						}
+					} else {
+						writeResponse(400, gson.toJson("Некорректный метод."), exchange);
 					}
 					break;
 				default:
-					writeResponse(400, gson.toJson("Некорректный метод."), exchange);
-			}
-		}
-	}
-	
-	private static class EpicHandler implements HttpHandler {
-		@Override
-		public void handle(HttpExchange exchange) throws IOException {
-			manager = Managers.getDefault();
-			String method = exchange.getRequestMethod();
-			String query = exchange.getRequestURI().getQuery();
-			
-			switch (method) {
-				case "GET":
-					if (query != null) {
-						getEpic(exchange);
+					if (method.equals("GET")) {
+						if (manager.getPrioritizedTasks().isEmpty()) {
+							writeResponse(200, gson.toJson("Список приоритетных задач пуст."), exchange);
+						} else {
+							writeResponse(200, gson.toJson(manager.getPrioritizedTasks()), exchange);
+						}
 					} else {
-						writeResponse(200, gson.toJson(manager.getEpics()), exchange);
+						writeResponse(400, gson.toJson("Некорректный метод."), exchange);
 					}
-					break;
-				case "POST":
-					addOrUpdateEpic(exchange);
-					break;
-				case "DELETE":
-					if (query != null) {
-						deleteEpic(exchange);
-					} else {
-						deleteEpics(exchange);
-					}
-					break;
-				default:
-					writeResponse(400, gson.toJson("Некорректный метод."), exchange);
-			}
-		}
-	}
-	
-	private static class SubtaskHandler implements HttpHandler {
-		@Override
-		public void handle(HttpExchange exchange) throws IOException {
-			manager = Managers.getDefault();
-			String method = exchange.getRequestMethod();
-			String query = exchange.getRequestURI().getQuery();
-			
-			switch (method) {
-				case "GET":
-					if (query != null) {
-						getSubtask(exchange);
-					} else {
-						writeResponse(200, gson.toJson(manager.getSubtasks()), exchange);
-					}
-					break;
-				case "POST":
-					addOrUpdateSubtask(exchange);
-					break;
-				case "DELETE":
-					if (query != null) {
-						deleteSubtask(exchange);
-					} else {
-						deleteSubtasks(exchange);
-					}
-					break;
-				default:
-					writeResponse(400, gson.toJson("Некорректный метод."), exchange);
-			}
-		}
-	}
-	
-	private static class EpicSubtasksHandler implements HttpHandler {
-		@Override
-		public void handle(HttpExchange exchange) throws IOException {
-			manager = Managers.getDefault();
-			String method = exchange.getRequestMethod();
-			String query = exchange.getRequestURI().getQuery();
-			
-			if (method.equals("GET")) {
-				if (query != null) {
-					getEpicSubtasks(exchange);
-				} else {
-					writeResponse(400, gson.toJson("Некорректный запрос"), exchange);
-				}
-			} else {
-				writeResponse(400, gson.toJson("Некорректный метод."), exchange);
-			}
-		}
-	}
-	
-	private static class HistoryHandler implements HttpHandler {
-		@Override
-		public void handle(HttpExchange exchange) throws IOException {
-			manager = Managers.getDefault();
-			String method = exchange.getRequestMethod();
-			
-			
-			if (method.equals("GET")) {
-				if (manager.getHistory().isEmpty()) {
-					writeResponse(200, gson.toJson("История пуста."), exchange);
-				} else {
-					writeResponse(200, gson.toJson(manager.getHistory()), exchange);
-				}
-			} else {
-				writeResponse(400, gson.toJson("Некорректный метод."), exchange);
-			}
-		}
-	}
-	
-	private static class PrioritizedTasksHandler implements HttpHandler {
-		@Override
-		public void handle(HttpExchange exchange) throws IOException {
-			manager = Managers.getDefault();
-			String method = exchange.getRequestMethod();
-			
-			if (method.equals("GET")) {
-				if (manager.getPrioritizedTasks().isEmpty()) {
-					writeResponse(200, gson.toJson("Список приоритетных задач пуст."), exchange);
-				} else {
-					writeResponse(200, gson.toJson(manager.getPrioritizedTasks()), exchange);
-				}
-			} else {
-				writeResponse(400, gson.toJson("Некорректный метод."), exchange);
 			}
 		}
 	}

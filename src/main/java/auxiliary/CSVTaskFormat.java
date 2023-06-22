@@ -1,9 +1,10 @@
-package main.java.models;
+package main.java.auxiliary;
 
-import main.java.managers.HistoryManager;
-import main.java.tasks.Epic;
-import main.java.tasks.Subtask;
-import main.java.tasks.Task;
+import main.java.manager.HistoryManager;
+import main.java.model.Type;
+import main.java.task.Epic;
+import main.java.task.Subtask;
+import main.java.task.Task;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

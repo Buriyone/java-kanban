@@ -1,9 +1,8 @@
-package main.java.tasks;
+package main.java.task;
 
-import main.java.models.Status;
-import main.java.models.Type;
+import main.java.auxiliary.Status;
+import main.java.model.Type;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 

@@ -1,11 +1,12 @@
-package main.java.managers;
+package main.java.manager;
 
 import main.java.exception.TimeValidationException;
-import main.java.models.Status;
-import main.java.tasks.Epic;
-import main.java.tasks.Subtask;
-import main.java.tasks.Task;
+import main.java.auxiliary.Status;
+import main.java.task.Epic;
+import main.java.task.Subtask;
+import main.java.task.Task;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -253,18 +254,24 @@ public class InMemoryTaskManager implements TaskManager {
     
     private void checkTimeValidation(Task task) {
         if (task.getStartTime() != null) {
+            final LocalDateTime verifiableStartTime = task.getStartTime();
+            final LocalDateTime verifiableEndTime = task.getEndTime();
+            
             for (Task t : prioritizedTasks) {
                 if (t.getStartTime() != null) {
+                    final LocalDateTime actualStartTime = t.getStartTime();
+                    final LocalDateTime actualEndTime = t.getEndTime();
+                    
                     try {
-                        if (task.getStartTime().isAfter(t.getStartTime())
-                                && task.getStartTime().isBefore(t.getEndTime())) {
+                        if (verifiableStartTime.isAfter(actualStartTime)
+                                && verifiableStartTime.isBefore(actualEndTime)) {
                             throw new TimeValidationException("Начало выполнения задачи: "
                                     + task.getId() + " пересекается с периодом выполнения задачи: " + t.getId());
-                        } else if (task.getEndTime().isAfter(t.getStartTime())
-                                && task.getEndTime().isBefore(t.getEndTime())) {
+                        } else if (verifiableEndTime.isAfter(actualStartTime)
+                                && verifiableEndTime.isBefore(actualEndTime)) {
                             throw new TimeValidationException("Окончание выполнения задачи: "
                                     + task.getId() + " пересекается с периодом выполнения задачи: " + t.getId());
-                        } else if (task.getStartTime().equals(t.getStartTime())){
+                        } else if (verifiableStartTime.equals(actualStartTime)){
                             throw new TimeValidationException("Начало выполнения задачи: "
                                     + task.getId() + " идентично началу выполнения задачи: " + t.getId());
                         }

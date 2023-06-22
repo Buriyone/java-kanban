@@ -1,4 +1,4 @@
-package main.java.models;
+package main.java.model;
 
 public class Node<T> {
     public T data;
